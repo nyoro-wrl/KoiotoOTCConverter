@@ -6,7 +6,7 @@
 ~~GitHubの使い方を未だよくわかっていないのでちゃんとできているか不安。~~
 
 ## ダウンロード
-[Releases](https://github.com/nyoro-wrl/KoiotoOTCConverter/releases)から一番新しいVerの.zipを解凍して使ってください。
+[Releases](https://github.com/nyoro-wrl/KoiotoOTCConverter/releases)から一番新しいVerの.zipを解凍してください。
 
 ## 使い方
 1. KoiotoOTCConverter.exeを開く
