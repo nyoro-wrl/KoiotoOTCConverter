@@ -354,7 +354,7 @@ namespace KoiotoOTCConverter
                                         break;
                                     default:
                                         TCIBoxWrite();
-                                        TCIBoxWrite("注意:難易度" + nowdifficulty + "は2人用の譜面が必要ですが、譜面数が足りていません。");
+                                        TCIBoxWrite("注意：難易度" + nowdifficulty + "は2人用の譜面が必要ですが、譜面数が足りていません。");
                                         for (int i = 1; i <= 2; i++)
                                         {
                                             // 暫定的に同じ譜面で埋める
@@ -387,7 +387,7 @@ namespace KoiotoOTCConverter
                                         break;
                                     default:
                                         TCIBoxWrite();
-                                        TCIBoxWrite("注意:難易度" + nowdifficulty + "は2人用の譜面が必要ですが、譜面数が足りていません。");
+                                        TCIBoxWrite("注意：難易度" + nowdifficulty + "は2人用の譜面が必要ですが、譜面数が足りていません。");
                                         for (int i = 1; i <= 2; i++)
                                         {
                                             // 暫定的に同じ譜面で埋める
