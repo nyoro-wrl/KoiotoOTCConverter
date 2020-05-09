@@ -37,7 +37,7 @@
 追加されるかどうかは気分次第です。
 
 ## 仕様
-- SUBTITLE:とSUBTITLE:++はそのままsubtitleに格納されますが、SUBTITLE:++だった場合はartistに格納されます。
+- SUBTITLE:とSUBTITLE:++はそのままsubtitleに格納されますが、SUBTITLE:--だった場合はartistに格納されます。
 
 ## 不具合
 - /が\\/と出力される（動作には影響なし）。
