@@ -1,0 +1,15 @@
+C:\Users\nyoro\source\repos\KoiotoTJAConverter\KoiotoTJAConverter\bin\Debug\KoiotoTJAConverter.exe.config
+C:\Users\nyoro\source\repos\KoiotoTJAConverter\KoiotoTJAConverter\bin\Debug\KoiotoTJAConverter.exe
+C:\Users\nyoro\source\repos\KoiotoTJAConverter\KoiotoTJAConverter\bin\Debug\KoiotoTJAConverter.pdb
+C:\Users\nyoro\source\repos\KoiotoTJAConverter\KoiotoTJAConverter\obj\Debug\KoiotoTJAConverter.csprojAssemblyReference.cache
+C:\Users\nyoro\source\repos\KoiotoTJAConverter\KoiotoTJAConverter\obj\Debug\MainWindow.g.cs
+C:\Users\nyoro\source\repos\KoiotoTJAConverter\KoiotoTJAConverter\obj\Debug\App.g.cs
+C:\Users\nyoro\source\repos\KoiotoTJAConverter\KoiotoTJAConverter\obj\Debug\KoiotoTJAConverter_MarkupCompile.cache
+C:\Users\nyoro\source\repos\KoiotoTJAConverter\KoiotoTJAConverter\obj\Debug\KoiotoTJAConverter_MarkupCompile.lref
+C:\Users\nyoro\source\repos\KoiotoTJAConverter\KoiotoTJAConverter\obj\Debug\MainWindow.baml
+C:\Users\nyoro\source\repos\KoiotoTJAConverter\KoiotoTJAConverter\obj\Debug\KoiotoTJAConverter.g.resources
+C:\Users\nyoro\source\repos\KoiotoTJAConverter\KoiotoTJAConverter\obj\Debug\KoiotoTJAConverter.Properties.Resources.resources
+C:\Users\nyoro\source\repos\KoiotoTJAConverter\KoiotoTJAConverter\obj\Debug\KoiotoTJAConverter.csproj.GenerateResource.cache
+C:\Users\nyoro\source\repos\KoiotoTJAConverter\KoiotoTJAConverter\obj\Debug\KoiotoTJAConverter.csproj.CoreCompileInputs.cache
+C:\Users\nyoro\source\repos\KoiotoTJAConverter\KoiotoTJAConverter\obj\Debug\KoiotoTJAConverter.exe
+C:\Users\nyoro\source\repos\KoiotoTJAConverter\KoiotoTJAConverter\obj\Debug\KoiotoTJAConverter.pdb
