@@ -1,7 +1,7 @@
 # KoiotoOTCConverter
 .tjaを.tciや.tccに変換するツールです。  
-見た目はただひたすら質素です。
-現在Koioto Ver.0.1に対応しています。  
+見た目はただひたすら質素です。  
+現在[Open Taiko Chart Rev2](https://github.com/AioiLight/Open-Taiko-Chart/blob/master/Rev2_ja-JP.md)にだいたい対応しています。  
 
 ~~GitHubの使い方を未だよくわかっていないのでちゃんとできているか不安。~~
 
@@ -26,4 +26,4 @@
 - 格納するcreatorを事前指定
 - offsetの補正値
 - SUBTITLE:の振り分け先指定
-- 真打スコアの自動入力
+- .tcmへの対応
