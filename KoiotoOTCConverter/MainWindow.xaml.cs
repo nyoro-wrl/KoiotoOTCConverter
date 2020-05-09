@@ -29,7 +29,7 @@ namespace KoiotoOTCConverter
         private void TCIBox_Loaded(object sender, RoutedEventArgs e)
         {
             // コマンドライン引数の処理
-            string[] files = System.Environment.GetCommandLineArgs();
+            string[] files = Environment.GetCommandLineArgs();
 
             for (int i = 1; i < files.Length; i++)
             {
@@ -67,10 +67,10 @@ namespace KoiotoOTCConverter
             TCIBoxWrite(filePath);
 
             // .tjaのみ許可
-            if (System.IO.Path.GetExtension(filePath) == ".tja")
+            if (Path.GetExtension(filePath) == ".tja")
             {
-                var encord = System.Text.Encoding.GetEncoding("SHIFT_JIS");
-                var tja = new System.IO.StreamReader(filePath, encord);
+                var encord = Encoding.GetEncoding("SHIFT_JIS");
+                var tja = new StreamReader(filePath, encord);
 
                 string tjaLine;
 
@@ -349,7 +349,7 @@ namespace KoiotoOTCConverter
                                 {
                                     case 1:
                                     case 2:
-                                        OTCWrite<OpenTaikoChartCourse>(tcc, System.IO.Path.GetDirectoryName(filePath), nowdifficulty + "_" + playside + "P", ".tcc");
+                                        OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowdifficulty + "_" + playside + "P", ".tcc");
                                         multiple.Add(nowdifficulty + "_" + playside + "P.tcc");
                                         tci.courses[dupCourse].multiple = multiple.ToArray();
                                         break;
@@ -359,7 +359,7 @@ namespace KoiotoOTCConverter
                                         for (int i = 1; i <= 2; i++)
                                         {
                                             // 暫定的に同じ譜面で埋める
-                                            OTCWrite<OpenTaikoChartCourse>(tcc, System.IO.Path.GetDirectoryName(filePath), nowdifficulty + "_" + i + "P", ".tcc");
+                                            OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowdifficulty + "_" + i + "P", ".tcc");
                                             tci.courses[dupCourse].single = nowdifficulty + "_" + i + "P.tcc";
                                         }
                                         break;
@@ -368,7 +368,7 @@ namespace KoiotoOTCConverter
                             else
                             {
                                 // SP時
-                                OTCWrite<OpenTaikoChartCourse>(tcc, System.IO.Path.GetDirectoryName(filePath), nowdifficulty, ".tcc");
+                                OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowdifficulty, ".tcc");
                                 tci.courses[dupCourse].single = nowdifficulty + ".tcc";
                             }
 
@@ -383,7 +383,7 @@ namespace KoiotoOTCConverter
                                 {
                                     case 1:
                                     case 2:
-                                        OTCWrite<OpenTaikoChartCourse>(tcc, System.IO.Path.GetDirectoryName(filePath), nowdifficulty + "_" + playside + "P", ".tcc");
+                                        OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowdifficulty + "_" + playside + "P", ".tcc");
                                         multiple.Add(nowdifficulty + "_" + playside + "P.tcc");
                                         break;
                                     default:
@@ -392,7 +392,7 @@ namespace KoiotoOTCConverter
                                         for (int i = 1; i <= 2; i++)
                                         {
                                             // 暫定的に同じ譜面で埋める
-                                            OTCWrite<OpenTaikoChartCourse>(tcc, System.IO.Path.GetDirectoryName(filePath), nowdifficulty + "_" + i + "P", ".tcc");
+                                            OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowdifficulty + "_" + i + "P", ".tcc");
                                             multiple.Add(nowdifficulty + "_" + i + "P.tcc");
                                         }
                                         tcic.multiple = multiple.ToArray();
@@ -402,7 +402,7 @@ namespace KoiotoOTCConverter
                             else
                             {
                                 // SP時
-                                OTCWrite<OpenTaikoChartCourse>(tcc, System.IO.Path.GetDirectoryName(filePath), nowdifficulty, ".tcc");
+                                OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowdifficulty, ".tcc");
                                 tcic.single = nowdifficulty + ".tcc";
                             }
 
@@ -522,7 +522,7 @@ namespace KoiotoOTCConverter
                     }
                 }
 
-                OTCWrite<OpenTaikoChartInfomation>(tci, System.IO.Path.GetDirectoryName(filePath), System.IO.Path.GetFileNameWithoutExtension(filePath), ".tci");
+                OTCWrite<OpenTaikoChartInfomation>(tci, Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath), ".tci");
 
                 tja.Close();
             }
@@ -673,7 +673,7 @@ namespace KoiotoOTCConverter
             public string[][] measures { get; set; }
         }
 
-        private void FormMain_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private void FormMain_KeyDown(object sender, KeyEventArgs e)
         {
             if (Keyboard.IsKeyDown(Key.Escape))
             {
