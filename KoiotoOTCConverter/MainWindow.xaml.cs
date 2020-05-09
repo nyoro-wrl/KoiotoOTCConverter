@@ -17,7 +17,7 @@ namespace KoiotoOTCConverter
     /// </summary>
     public partial class MainWindow : Window
     {
-        // 稚拙なコードなのであまり見ないでください！！
+        // 稚拙なコードなのでジロジロ見ないでください！！
         public MainWindow()
         {
             InitializeComponent();
