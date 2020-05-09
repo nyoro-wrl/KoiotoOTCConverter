@@ -191,7 +191,7 @@ namespace KoiotoOTCConverter
 
                     if (movieoffset == 0)
                     {
-                        // .tciでは場合オフセットが逆
+                        // .tciではオフセットが逆
                         tci.movieoffset = doubleSubstring(tjaLine, movieoffsetStr.Length) * -1;
                     }
 
@@ -202,7 +202,7 @@ namespace KoiotoOTCConverter
 
                     if (offset == 0)
                     {
-                        // .tciでは場合オフセットが逆
+                        // .tciではオフセットが逆
                         tci.offset = doubleSubstring(tjaLine, offsetStr.Length) * -1;
                     }
 
