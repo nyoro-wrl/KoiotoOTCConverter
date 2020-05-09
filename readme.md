@@ -1,5 +1,5 @@
 # KoiotoOTCConverter
-.tjaを.tci .tccに変換するツールです。  
+.tjaを.tciや.tccに変換するツールです。  
 見た目はただひたすら質素です。
 現在Koioto Ver.0.1に対応しています。  
 
