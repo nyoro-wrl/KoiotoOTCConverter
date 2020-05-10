@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -17,6 +18,8 @@ namespace KoiotoOTCConverter
     /// </summary>
     public partial class MainWindow : Window
     {
+        const string otcVer = "Rev2";   // Open Taiko Chart Version
+
         // 稚拙なコードなのでジロジロ見ないでください！！
         public MainWindow()
         {
@@ -28,17 +31,14 @@ namespace KoiotoOTCConverter
 
         private void TCIBox_Loaded(object sender, RoutedEventArgs e)
         {
+            TCIBoxWrite("変換形式:Open Taiko Chart " + otcVer);
+
             // コマンドライン引数の処理
             string[] files = Environment.GetCommandLineArgs();
 
-            for (int i = 1; i < files.Length; i++)
-            {
-                TCIConvert(files[i]);
-            }
-
             if (files.Count() > 1)
             {
-                // コマンドライン引数で処理を行った場合
+                fileReader(files, 1, files.Length);
                 Application.Current.Shutdown();
             }
         }
@@ -55,17 +55,91 @@ namespace KoiotoOTCConverter
             // D&D処理
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop, false);
 
-            for (int i = 0; i < files.Length; i++)
-            {
-                TCIConvert(files[i]);
-            }
+            fileReader(files, 0, files.Length);
         }
 
-        private void TCIConvert(string filePath)
+        private void fileReader(string[] files, int startindex, int endindex)
         {
-            TCIBoxWrite();
-            TCIBoxWrite(filePath);
+            for (int i = startindex; i < endindex; i++)
+            {
+                TCIBoxWrite();
+                TCIBoxWrite(files[i]);
 
+                // ディレクトリかファイルか判別
+                if (File.GetAttributes(files[i]).HasFlag(FileAttributes.Directory))
+                {
+                    // ディレクトリが読み込まれた場合
+
+                    // ダイアログが埋もれないようにアクティブ化
+                    FormMain.Activate();
+
+                    string messageBoxText = "フォルダーが読み込まれました。フォルダー内にある全ての.tjaを変換しますか？";
+                    string caption = "警告";
+                    MessageBoxButton button = MessageBoxButton.YesNo;
+                    MessageBoxImage icon = MessageBoxImage.Exclamation;
+
+                    TCIBoxWrite();
+                    TCIBoxWrite(caption + "：" + messageBoxText);
+                    MessageBoxResult result = MessageBox.Show(this, files[i] + "\r" + messageBoxText, caption, button, icon);
+
+                    // ダイアログでの選択を判別
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        // はいを選んだ場合
+                        TCIBoxWrite();
+                        TCIBoxWrite(">>はい");
+
+                        // .tjaファイルを検索
+                        IEnumerable<string> tjafiles = Directory.EnumerateFiles(files[i], "*.tja", SearchOption.AllDirectories);
+
+                        if (tjafiles.Count() > 0)
+                        {
+                            foreach (string str in tjafiles)
+                            {
+                                TCIBoxWrite();
+                                TCIBoxWrite(str);
+                                OTCConvert(str);
+                            }
+
+                            messageBoxText = tjafiles.Count() + "件の.tjaファイルを変換しました。";
+                            caption = "情報";
+                            button = MessageBoxButton.OK;
+                            icon = MessageBoxImage.Information;
+                        }
+                        else
+                        {
+                            messageBoxText = ".tjaファイルがありませんでした。";
+                            caption = "情報";
+                            button = MessageBoxButton.OK;
+                            icon = MessageBoxImage.Information;
+
+                            TCIBoxWrite();
+                            TCIBoxWrite(messageBoxText);
+                        }
+                        MessageBox.Show(this, messageBoxText, caption, button, icon);
+                    }
+                    else
+                    {
+                        // いいえを選んだ場合
+                        TCIBoxWrite();
+                        TCIBoxWrite(">>いいえ");
+                    }
+                }
+                else
+                {
+                    // ファイルが読み込まれた場合
+                    OTCConvert(files[i]);
+                }
+            }
+
+            TCIBoxWrite();
+            TCIBoxWrite("処理完了");
+
+            TCIBox.ScrollToEnd();
+        }
+
+        private void OTCConvert(string filePath)
+        {
             // .tjaのみ許可
             if (Path.GetExtension(filePath) == ".tja")
             {
@@ -158,19 +232,26 @@ namespace KoiotoOTCConverter
                         string str;
                         str = tjaLine.Substring(subtitleStr.Length);
 
-                        switch (str.Substring(0, 2))
+                        if (str.Length > 1)
                         {
-                            // 先頭2文字による処理分け
-                            case "--":
-                                artist.Add(str.Substring(2));
-                                tci.artist = artist.ToArray();
-                                break;
-                            case "++":
-                                tci.subtitle = str.Substring(2);
-                                break;
-                            default:
-                                tci.subtitle = str;
-                                break;
+                            switch (str.Substring(0, 2))
+                            {
+                                // 先頭2文字による処理分け
+                                case "--":
+                                    artist.Add(str.Substring(2));
+                                    tci.artist = artist.ToArray();
+                                    break;
+                                case "++":
+                                    tci.subtitle = str.Substring(2);
+                                    break;
+                                default:
+                                    tci.subtitle = str;
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            tci.subtitle = str;
                         }
                     }
 
@@ -531,11 +612,6 @@ namespace KoiotoOTCConverter
                 TCIBoxWrite();
                 TCIBoxWrite("エラー：読み込めるのは.tjaファイルのみです。");
             }
-
-            TCIBoxWrite();
-            TCIBoxWrite("処理完了");
-
-            TCIBox.ScrollToEnd();
         }
 
         private void OTCWrite<Type>(Type otc, string directory, string filename, string extension)
@@ -694,9 +770,12 @@ namespace KoiotoOTCConverter
 
         List<string> attentionMsg;  // 警告メッセージのリスト
 
-        // コメント
-        int comment;
+        // 汎用
+        int comment, colon, sharp, comma;
         const string commentStr = "//";
+        const string colonStr = ":";
+        const string sharpStr = "#";
+        const string commaStr = ",";
 
         // .tci対応
         int title, subtitle, wave, bgimage, bgmovie, movieoffset, bpm, offset, demostart;
@@ -709,9 +788,6 @@ namespace KoiotoOTCConverter
         const string bpmStr = "BPM:";
         const string offsetStr = "OFFSET:";
         const string demostartStr = "DEMOSTART:";
-
-        int colon;
-        const string colonStr = ":";
 
         // .tci対応（コース別）
         int course, level, style;
@@ -744,12 +820,7 @@ namespace KoiotoOTCConverter
         const string scorediffStr = "SCOREDIFF:";
         const string balloonStr = "BALLOON:";
 
-        int comma, sharp;
-        const string commaStr = ",";
-        const string sharpStr = "#";
-
         int start, end;
-
         const string startStr = "#START";
         const string endStr = "#END";
 
@@ -786,8 +857,8 @@ namespace KoiotoOTCConverter
         string measureTcc = "#tsign ";
 
         // /が　＼/みたいな書き方で出力されてしまう（JSONではそれが正しいらしい）
+        // ＼は＼＼と出力するのがOTCの規定らしい
         // ファイルを参照して出力
-        // フォルダを参照した場合、中の.tjaを調べ尽くして変換する機能（D&Dは誤爆防止のため実装しない）
         // 出力ディレクトリを選べる機能
         // 出力後のファイルを整形しなおす機能（改行など）
         // SUBTITLE:の振り分け先（subtitle,artist）を++,--のケースを含めて設定できる機能
@@ -795,6 +866,6 @@ namespace KoiotoOTCConverter
         // 事前に設定した補正値をoffsetにかける機能
         // Easy, Normal, Hard, Oni, Editの各.tccファイルを事前に設定した名前で出力できる機能（"0_Easy.tcc","1_Normal.tcc"など）
         // #N,#E,#Mが他の命令文でも検知してしまう問題への対応
-        // 真打への対応
+        // 真打の自動計算
     }
 }
