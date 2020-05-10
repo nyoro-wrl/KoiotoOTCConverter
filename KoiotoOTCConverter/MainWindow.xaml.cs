@@ -361,6 +361,7 @@ namespace KoiotoOTCConverter
                         string str = tjaLine.Substring(balloonStr.Length);
 
                         str = str.Replace(" ", "");
+                        str = str.TrimEnd(',');
 
                         if (str != "")
                         {
