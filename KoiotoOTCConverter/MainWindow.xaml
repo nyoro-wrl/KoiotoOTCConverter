@@ -7,6 +7,6 @@
         mc:Ignorable="d"
         Title="KoiotoOTCConverter" Height="450" Width="800" Drop="FormMain_Drop" AllowDrop="True" MinWidth="300" MinHeight="150" KeyDown="FormMain_KeyDown">
     <Grid AllowDrop="True">
-        <TextBox x:Name="TCIBox" Text=".tjaファイルorフォルダをドラッグ&amp;ドロップ！（複数可）" RenderTransformOrigin="-0.33,-2.021" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" Loaded="TCIBox_Loaded" PreviewDragOver="TCIBox_PreviewDragOver" IsReadOnly="True"/>
+        <TextBox x:Name="TCIBox" Text=".tjaファイルorフォルダーをドラッグ&amp;ドロップ！（複数可）" RenderTransformOrigin="-0.33,-2.021" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" Loaded="TCIBox_Loaded" PreviewDragOver="TCIBox_PreviewDragOver" IsReadOnly="True"/>
     </Grid>
 </Window>
