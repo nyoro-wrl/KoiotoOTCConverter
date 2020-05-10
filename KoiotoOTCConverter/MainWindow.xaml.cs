@@ -80,6 +80,7 @@ namespace KoiotoOTCConverter
 
                     TCIBoxWrite();
                     TCIBoxWrite(caption + "：" + messageBoxText);
+                    TCIBox.ScrollToEnd();
                     MessageBoxResult result = MessageBox.Show(this, files[i] + "\r" + messageBoxText, caption, button, icon);
 
                     // ダイアログでの選択を判別
@@ -116,6 +117,7 @@ namespace KoiotoOTCConverter
                             TCIBoxWrite();
                             TCIBoxWrite(messageBoxText);
                         }
+                        TCIBox.ScrollToEnd();
                         MessageBox.Show(this, messageBoxText, caption, button, icon);
                     }
                     else
