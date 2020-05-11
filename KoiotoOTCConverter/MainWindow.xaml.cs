@@ -264,12 +264,22 @@ namespace KoiotoOTCConverter
 
                     if (bgimage == 0)
                     {
-                        tci.background = tjaLine.Substring(bgimageStr.Length);
+                        string str = tjaLine.Substring(bgimageStr.Length);
+
+                        if (str != "")
+                        {
+                            tci.background = str;
+                        }
                     }
 
                     if (bgmovie == 0)
                     {
-                        tci.background = tjaLine.Substring(bgmovieStr.Length);
+                        string str = tjaLine.Substring(bgmovieStr.Length);
+
+                        if (str != "")
+                        {
+                            tci.background = str;
+                        }
                     }
 
                     if (movieoffset == 0)
