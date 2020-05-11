@@ -28,6 +28,14 @@ namespace KoiotoOTCConverter
             // バージョン表記
             FormMain.Title += " Ver." + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
         }
+        private void FormMain_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.Escape))
+            {
+                // Escキーで終了
+                Application.Current.Shutdown();
+            }
+        }
 
         private void TCIBox_Loaded(object sender, RoutedEventArgs e)
         {
@@ -384,22 +392,6 @@ namespace KoiotoOTCConverter
                     if (end == 0)
                     {
                         bmeasures = false;
-
-                        // 項目がnullだと落ちるので暫定対応
-                        if (tci.subtitle == null)
-                        {
-                            tci.subtitle = "";
-                        }
-                        if (tci.artist == null)
-                        {
-                            artist.Add("");
-                            tci.artist = artist.ToArray();
-                        }
-                        if (tci.creator == null)
-                        {
-                            creator.Add("");
-                            tci.creator = creator.ToArray();
-                        }
 
                         tcic.difficulty = nowdifficulty.ToLower();
                         tcic.level = nowlevel;
@@ -762,15 +754,6 @@ namespace KoiotoOTCConverter
             public string[][] measures { get; set; }
         }
 
-        private void FormMain_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (Keyboard.IsKeyDown(Key.Escape))
-            {
-                // Escキーで終了
-                Application.Current.Shutdown();
-            }
-        }
-
         private void courseInitialize()
         {
             bdoubleplay = false;
@@ -815,7 +798,7 @@ namespace KoiotoOTCConverter
         //const string lifeStr = "LIFE:";
         //const string sideStr = "SIDE:";
         //const string scoremodeStr = "SCOREMODE:";
-        //const string gameStr = "GAME:";
+        //const string gameStr = "GAME:";   // 多分一生対応されない
         //const string genreStr = "GENRE:";
         //const string totalStr = "TOTAL:";
         //const string balloonnorStr = "BALLOONNOR:";
@@ -871,13 +854,13 @@ namespace KoiotoOTCConverter
 
         // /が　＼/みたいな書き方で出力されてしまう（JSONではそれが正しいらしい）
         // ＼は＼＼と出力するのがOTCの規定らしい
-        // ファイルを参照して出力
         // 出力ディレクトリを選べる機能
         // 出力後のファイルを整形しなおす機能（改行など）
         // SUBTITLE:の振り分け先（subtitle,artist）を++,--のケースを含めて設定できる機能
         // 事前に設定したcreatorが格納される機能
         // 事前に設定した補正値をoffsetにかける機能
         // Easy, Normal, Hard, Oni, Editの各.tccファイルを事前に設定した名前で出力できる機能（"0_Easy.tcc","1_Normal.tcc"など）
+        // 上の機能、できれば.tjaファイル名の名前も指定できるようにしたいところ。{filename}とか
         // #N,#E,#Mが他の命令文でも検知してしまう問題への対応
         // 真打の自動計算
     }
