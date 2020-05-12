@@ -32,22 +32,44 @@ namespace KoiotoOTCConverter
 
         private void Open_Click(object sender, RoutedEventArgs e)
         {
-            // ファイル.開く
+            // [メニュー]ファイル→開く
 
             // WPFだと複数選択不可なのでFormのダイアログを呼ぶ
-            var dialog = new Microsoft.Win32.OpenFileDialog();
+            var dialog = new System.Windows.Forms.OpenFileDialog();
             dialog.InitialDirectory = Path.GetDirectoryName(appDirectory);
+            dialog.Filter = ".tjaファイル(*.tja)|*.tja";
             dialog.Multiselect = true;
+            System.Windows.Forms.DialogResult dr = dialog.ShowDialog();
 
-            //if (dialog.ShowDialog() == Forms.DialogResult.OK)
+            if (dr == System.Windows.Forms.DialogResult.OK)
+            {
+                fileReader(dialog.FileNames, 0, dialog.FileNames.Length);
+            }
+        }
+
+        private void OpenDirectory_Click(object sender, RoutedEventArgs e)
+        {
+            // [メニュー]ファイル→フォルダーを開く
+
+            // WPFだと複数選択不可なのでFormのダイアログを呼ぶ
+            //var dialog = new System.Windows.Forms.FolderBrowserDialog();
+            //dialog.ShowDialog();
+            //dialog.InitialDirectory = Path.GetDirectoryName(appDirectory);
+            //dialog.Multiselect = true;
+            //dialog.ValidateNames = false;
+            //dialog.CheckFileExists = false;
+            //dialog.CheckPathExists = true;
+            //System.Windows.Forms.DialogResult dr = dialog.ShowDialog();
+
+            //if (dr == System.Windows.Forms.DialogResult.OK)
             //{
-            //
+            //    fileReader(dialog.FileNames, 0, dialog.FileNames.Length);
             //}
         }
 
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
-            // ファイル.終了
+            // [メニュー]ファイル→終了
             Application.Current.Shutdown();
         }
 
