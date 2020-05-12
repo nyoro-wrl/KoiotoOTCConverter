@@ -19,6 +19,7 @@ namespace KoiotoOTCConverter
     public partial class MainWindow : Window
     {
         const string otcVer = "Rev2";   // Open Taiko Chart Version
+        string appDirectory = Path.GetDirectoryName(Path.GetFullPath(Environment.GetCommandLineArgs()[0])); // アプリの実行ディレクトリ
 
         // 稚拙なコードなのでジロジロ見ないでください！！
         public MainWindow()
@@ -28,12 +29,38 @@ namespace KoiotoOTCConverter
             // バージョン表記
             FormMain.Title += " Ver." + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
         }
+
+        private void Open_Click(object sender, RoutedEventArgs e)
+        {
+            // ファイル.開く
+
+            // WPFだと複数選択不可なのでFormのダイアログを呼ぶ
+            var dialog = new Microsoft.Win32.OpenFileDialog();
+            dialog.InitialDirectory = Path.GetDirectoryName(appDirectory);
+            dialog.Multiselect = true;
+
+            //if (dialog.ShowDialog() == Forms.DialogResult.OK)
+            //{
+            //
+            //}
+        }
+
+        private void Exit_Click(object sender, RoutedEventArgs e)
+        {
+            // ファイル.終了
+            Application.Current.Shutdown();
+        }
+
         private void FormMain_KeyDown(object sender, KeyEventArgs e)
         {
-            if (Keyboard.IsKeyDown(Key.Escape))
+            if (Mouse.LeftButton == MouseButtonState.Released)
             {
-                // Escキーで終了
-                Application.Current.Shutdown();
+                // ドラッグをEscでキャンセルしたときに終了してしまうのを回避する小癪なやり方
+                if (Keyboard.IsKeyDown(Key.Escape))
+                {
+                    // Escキーで終了
+                    Application.Current.Shutdown();
+                }
             }
         }
 
