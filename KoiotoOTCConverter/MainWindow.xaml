@@ -5,18 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KoiotoOTCConverter"
         mc:Ignorable="d"
-        Title="KoiotoOTCConverter" Height="450" Width="800" Drop="FormMain_Drop" AllowDrop="True" MinWidth="300" MinHeight="150" KeyDown="FormMain_KeyDown">
+        Title="KoiotoOTCConverter" Height="450" Width="800" Drop="FormMain_Drop" AllowDrop="True" MinWidth="304" MinHeight="171" KeyDown="FormMain_KeyDown">
     <Grid AllowDrop="True">
         <Menu VerticalAlignment="Top" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.MenuBarBrushKey}}" BorderThickness="0,0,0,2">
             <MenuItem Header="ファイル(F)">
-                <MenuItem Header="開く(O)" Click="Open_Click" />
-                <!--<MenuItem Header="フォルダーを開く" Click="OpenDirectory_Click" />-->
+                <MenuItem Header="開く" Click="Open_Click" />
+                <MenuItem Header="フォルダーを選択" Click="OpenDirectory_Click" />
+                <Separator />
                 <MenuItem Header="設定" />
                 <Separator />
                 <MenuItem Header="終了" Click="Exit_Click" />
             </MenuItem>
             <MenuItem Header="ヘルプ(H)">
-                <MenuItem Header="GitHubのページを開く" />
+                <MenuItem Header="GitHubのページを開く" Click="GithubOpen_Click" />
             </MenuItem>
         </Menu>
         <TextBox x:Name="TCIBox" Text=".tjaファイルorフォルダーをドラッグ&amp;ドロップ！（複数可）" RenderTransformOrigin="-0.33,-2.021" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" Loaded="TCIBox_Loaded" PreviewDragOver="TCIBox_PreviewDragOver" IsReadOnly="True" Margin="0,20,0,0" BorderBrush="{x:Null}" BorderThickness="0"/>

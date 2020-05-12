@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -32,45 +33,44 @@ namespace KoiotoOTCConverter
 
         private void Open_Click(object sender, RoutedEventArgs e)
         {
-            // [メニュー]ファイル→開く
-
-            // WPFだと複数選択不可なのでFormのダイアログを呼ぶ
-            var dialog = new System.Windows.Forms.OpenFileDialog();
+            // [ファイル]→開く
+            // Windows API Code Pack使用
+            var dialog = new CommonOpenFileDialog();
             dialog.InitialDirectory = Path.GetDirectoryName(appDirectory);
-            dialog.Filter = ".tjaファイル(*.tja)|*.tja";
+            dialog.Filters.Add(new CommonFileDialogFilter("tjaファイル","*.tja"));
             dialog.Multiselect = true;
-            System.Windows.Forms.DialogResult dr = dialog.ShowDialog();
 
-            if (dr == System.Windows.Forms.DialogResult.OK)
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                fileReader(dialog.FileNames, 0, dialog.FileNames.Length);
+                fileReader(dialog.FileNames.ToArray(), 0, dialog.FileNames.Count());
             }
         }
 
         private void OpenDirectory_Click(object sender, RoutedEventArgs e)
         {
-            // [メニュー]ファイル→フォルダーを開く
+            // [ファイル]→フォルダーを開く
+            // Windows API Code Pack使用
+            var dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = Path.GetDirectoryName(appDirectory);
+            dialog.IsFolderPicker = true;
+            dialog.Multiselect = true;
 
-            // WPFだと複数選択不可なのでFormのダイアログを呼ぶ
-            //var dialog = new System.Windows.Forms.FolderBrowserDialog();
-            //dialog.ShowDialog();
-            //dialog.InitialDirectory = Path.GetDirectoryName(appDirectory);
-            //dialog.Multiselect = true;
-            //dialog.ValidateNames = false;
-            //dialog.CheckFileExists = false;
-            //dialog.CheckPathExists = true;
-            //System.Windows.Forms.DialogResult dr = dialog.ShowDialog();
-
-            //if (dr == System.Windows.Forms.DialogResult.OK)
-            //{
-            //    fileReader(dialog.FileNames, 0, dialog.FileNames.Length);
-            //}
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                fileReader(dialog.FileNames.ToArray(), 0, dialog.FileNames.Count());
+            }
         }
 
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
-            // [メニュー]ファイル→終了
+            // [ファイル]→終了
             Application.Current.Shutdown();
+        }
+
+        private void GithubOpen_Click(object sender, RoutedEventArgs e)
+        {
+            // [ヘルプ]→GitHubのページを開く
+            System.Diagnostics.Process.Start("https://github.com/nyoro-wrl/KoiotoOTCConverter");
         }
 
         private void FormMain_KeyDown(object sender, KeyEventArgs e)
