@@ -852,6 +852,7 @@ namespace KoiotoOTCConverter
         string gogostartTcc = "#gogobegin";
         string measureTcc = "#tsign ";
 
+        // 生成されたファイルの編集しやすさを考えるとnullが入るより""入れたほうがいいかもしれない
         // /が　＼/みたいな書き方で出力されてしまう（JSONではそれが正しいらしい）
         // ＼は＼＼と出力するのがOTCの規定らしい
         // 出力ディレクトリを選べる機能
