@@ -432,6 +432,8 @@ namespace KoiotoOTCConverter
                     {
                         isMeasure = false;
 
+                        // #ENDと同時に.tccの書き込み処理に入る
+
                         tcic.difficulty = nowDifficulty.ToLower();
                         tcic.level = nowLevel;
 
@@ -473,17 +475,16 @@ namespace KoiotoOTCConverter
                                 tcc.scoreinit = nowDoubleplayScoreinit;
                                 tcc.scorediff = nowDoubleplayScorediff;
 
-                                OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty + "_" + nowPlayside + "P", ".tcc");
-                                multiple.Add(nowDifficulty + "_" + nowPlayside + "P.tcc");
+                                string fileName = OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty + "_" + nowPlayside + "P", ".tcc");
+                                multiple.Add(fileName);
                                 tci.courses[dupCourse].multiple = multiple.ToArray();
                             }
                             else
                             {
                                 // SP
-                                OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty, ".tcc");
-                                tci.courses[dupCourse].single = nowDifficulty + ".tcc";
+                                string fileName = OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty, ".tcc");
+                                tci.courses[dupCourse].single = fileName;
                             }
-
                         }
                         else
                         {
@@ -491,14 +492,14 @@ namespace KoiotoOTCConverter
                             if (nowPlayside > 0)
                             {
                                 // DP
-                                OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty + "_" + nowPlayside + "P", ".tcc");
-                                multiple.Add(nowDifficulty + "_" + nowPlayside + "P.tcc");
+                                string fileName = OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty + "_" + nowPlayside + "P", ".tcc");
+                                multiple.Add(fileName);
                             }
                             else
                             {
                                 // SP
-                                OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty, ".tcc");
-                                tcic.single = nowDifficulty + ".tcc";
+                                string fileName = OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty, ".tcc");
+                                tcic.single = fileName;
                             }
 
                             // Courseの追加
@@ -644,19 +645,23 @@ namespace KoiotoOTCConverter
             }
         }
 
-        private void OTCWrite<Type>(Type otc, string directory, string filename, string extension)
+        private string OTCWrite<Type>(Type otc, string directory, string filename, string extension)
         {
             // .tti .ttcファイルの書き込み
-            using (var fs = new FileStream(directory + @"\" + filename + extension, FileMode.Create, FileAccess.Write))
-            using (var writer = JsonReaderWriterFactory.CreateJsonWriter(fs, Encoding.UTF8, true, true))                    // インデントと改行の挿入
+            string path = directory + @"\" + filename + extension;
+
+            using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write))
+            using (var writer = JsonReaderWriterFactory.CreateJsonWriter(fs, Encoding.UTF8, true, true))    // インデントと改行の挿入
             {
                 var otcType = otc.GetType();
                 var serializer = new DataContractJsonSerializer(otcType);
                 serializer.WriteObject(writer, otc);
 
                 TextBoxMainWrite();
-                TextBoxMainWrite(directory + "\\" + filename + extension + " が作成されました。");
+                TextBoxMainWrite(path + " が作成されました。");
             }
+
+            return Path.GetFileName(path);
         }
 
         private string InstructionConvert(string tjaLine)
