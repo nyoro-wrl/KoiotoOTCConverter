@@ -12,14 +12,14 @@
                 <MenuItem Header="開く" Click="Open_Click" />
                 <MenuItem Header="フォルダーを選択" Click="OpenDirectory_Click" />
                 <Separator />
-                <MenuItem Header="設定" />
+                <MenuItem Header="設定" Click="Setting_Click" />
                 <Separator />
                 <MenuItem Header="終了" Click="Exit_Click" />
             </MenuItem>
             <MenuItem Header="ヘルプ(H)">
-                <MenuItem Header="GitHubのページを開く" Click="GithubOpen_Click" />
+                <MenuItem Header="GitHubのページを開く" Click="Github_Click" />
             </MenuItem>
         </Menu>
-        <TextBox x:Name="TCIBox" Text=".tjaファイルorフォルダーをドラッグ&amp;ドロップ！（複数可）" RenderTransformOrigin="-0.33,-2.021" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" Loaded="TCIBox_Loaded" PreviewDragOver="TCIBox_PreviewDragOver" IsReadOnly="True" Margin="0,20,0,0" BorderBrush="{x:Null}" BorderThickness="0"/>
+        <TextBox x:Name="TextBoxMain" Text=".tjaファイルorフォルダーをドラッグ&amp;ドロップ！（複数可）" RenderTransformOrigin="-0.33,-2.021" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" Loaded="TextBoxMain_Loaded" PreviewDragOver="TextBoxMain_PreviewDragOver" IsReadOnly="True" Margin="0,20,0,0" BorderBrush="{x:Null}" BorderThickness="0"/>
     </Grid>
 </Window>

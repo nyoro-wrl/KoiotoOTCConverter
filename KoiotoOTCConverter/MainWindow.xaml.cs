@@ -19,58 +19,31 @@ namespace KoiotoOTCConverter
     /// </summary>
     public partial class MainWindow : Window
     {
-        const string otcVer = "Rev2";   // Open Taiko Chart Version
-        string appDirectory = Path.GetDirectoryName(Path.GetFullPath(Environment.GetCommandLineArgs()[0])); // アプリの実行ディレクトリ
+        string otcVer = "Rev2"; // 対応しているOpenTaikoChartのバージョン
+        string appDirectory = Path.GetDirectoryName(Path.GetFullPath(Environment.GetCommandLineArgs()[0])); // KoiotoOTCConverterが実行されているディレクトリ
 
-        // 稚拙なコードなのでジロジロ見ないでください！！
         public MainWindow()
         {
             InitializeComponent();
 
             // バージョン表記
             FormMain.Title += " Ver." + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
+
+            // 変換形式の表記
+            TextBoxMainWrite("変換形式:Open Taiko Chart " + otcVer);
         }
 
-        private void Open_Click(object sender, RoutedEventArgs e)
+        private void TextBoxMain_Loaded(object sender, RoutedEventArgs e)
         {
-            // [ファイル]→開く
-            // Windows API Code Pack使用
-            var dialog = new CommonOpenFileDialog();
-            dialog.InitialDirectory = Path.GetDirectoryName(appDirectory);
-            dialog.Filters.Add(new CommonFileDialogFilter("tjaファイル","*.tja"));
-            dialog.Multiselect = true;
+            // コマンドライン引数の処理
+            string[] files = Environment.GetCommandLineArgs();
 
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            if (files.Count() > 1)
             {
-                fileReader(dialog.FileNames.ToArray(), 0, dialog.FileNames.Count());
+                // コマンドライン引数が存在する場合
+                FileReader(files, 1, files.Length);
+                Application.Current.Shutdown();
             }
-        }
-
-        private void OpenDirectory_Click(object sender, RoutedEventArgs e)
-        {
-            // [ファイル]→フォルダーを開く
-            // Windows API Code Pack使用
-            var dialog = new CommonOpenFileDialog();
-            dialog.InitialDirectory = Path.GetDirectoryName(appDirectory);
-            dialog.IsFolderPicker = true;
-            dialog.Multiselect = true;
-
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                fileReader(dialog.FileNames.ToArray(), 0, dialog.FileNames.Count());
-            }
-        }
-
-        private void Exit_Click(object sender, RoutedEventArgs e)
-        {
-            // [ファイル]→終了
-            Application.Current.Shutdown();
-        }
-
-        private void GithubOpen_Click(object sender, RoutedEventArgs e)
-        {
-            // [ヘルプ]→GitHubのページを開く
-            System.Diagnostics.Process.Start("https://github.com/nyoro-wrl/KoiotoOTCConverter");
         }
 
         private void FormMain_KeyDown(object sender, KeyEventArgs e)
@@ -86,115 +59,146 @@ namespace KoiotoOTCConverter
             }
         }
 
-        private void TCIBox_Loaded(object sender, RoutedEventArgs e)
+        private void Open_Click(object sender, RoutedEventArgs e)
         {
-            TCIBoxWrite("変換形式:Open Taiko Chart " + otcVer);
+            // [ファイル]→開く
+            // Windows API Code Pack使用
+            var dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = Path.GetDirectoryName(appDirectory);
+            dialog.Filters.Add(new CommonFileDialogFilter("tjaファイル", "*.tja"));
+            dialog.Multiselect = true;
 
-            // コマンドライン引数の処理
-            string[] files = Environment.GetCommandLineArgs();
-
-            if (files.Count() > 1)
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                fileReader(files, 1, files.Length);
-                Application.Current.Shutdown();
+                FileReader(dialog.FileNames.ToArray(), 0, dialog.FileNames.Count());
             }
         }
 
-        private void TCIBox_PreviewDragOver(object sender, DragEventArgs e)
+        private void OpenDirectory_Click(object sender, RoutedEventArgs e)
         {
-            // TCIBoxでのD&D許可
+            // [ファイル]→フォルダーを開く
+            // Windows API Code Pack使用
+            var dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = Path.GetDirectoryName(appDirectory);
+            dialog.IsFolderPicker = true;
+            dialog.Multiselect = true;
+
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                FileReader(dialog.FileNames.ToArray(), 0, dialog.FileNames.Count());
+            }
+        }
+
+        private void Setting_Click(object sender, RoutedEventArgs e)
+        {
+            // [ファイル]→設定
+            var sw = new SettingWindow();
+            sw.ShowDialog();
+        }
+
+        private void Exit_Click(object sender, RoutedEventArgs e)
+        {
+            // [ファイル]→終了
+            Application.Current.Shutdown();
+        }
+
+        private void Github_Click(object sender, RoutedEventArgs e)
+        {
+            // [ヘルプ]→GitHubのページを開く
+            System.Diagnostics.Process.Start("https://github.com/nyoro-wrl/KoiotoOTCConverter");
+        }
+
+        private void TextBoxMain_PreviewDragOver(object sender, DragEventArgs e)
+        {
+            // TextBoxMainでのD&D許可
             e.Effects = DragDropEffects.Copy;
             e.Handled = e.Data.GetDataPresent(DataFormats.FileDrop);
         }
 
         private void FormMain_Drop(object sender, DragEventArgs e)
         {
-            // D&D処理
+            // MainWindowへのD&D処理
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop, false);
 
-            fileReader(files, 0, files.Length);
+            FileReader(files, 0, files.Length);
         }
 
-        private void fileReader(string[] files, int startindex, int endindex)
+        private void FileReader(string[] files, int startIndex, int endIndex)
         {
-            for (int i = startindex; i < endindex; i++)
+            for (int fileIndex = startIndex; fileIndex < endIndex; fileIndex++)
             {
-                TCIBoxWrite();
-                TCIBoxWrite(files[i]);
+                TextBoxMainWrite();
+                TextBoxMainWrite(files[fileIndex]);
 
                 // ディレクトリかファイルか判別
-                if (File.GetAttributes(files[i]).HasFlag(FileAttributes.Directory))
+                if (File.GetAttributes(files[fileIndex]).HasFlag(FileAttributes.Directory))
                 {
                     // ディレクトリが読み込まれた場合
 
                     // ダイアログが埋もれないようにアクティブ化
                     FormMain.Activate();
 
-                    string messageBoxText = "フォルダーが読み込まれました。フォルダー内にある全ての.tjaを変換しますか？";
-                    string caption = "警告";
-                    MessageBoxButton button = MessageBoxButton.YesNo;
-                    MessageBoxImage icon = MessageBoxImage.Exclamation;
+                    string msgText = "フォルダーが読み込まれました。フォルダー内にある全ての.tjaを変換しますか？";
+                    string msgCaption = "警告";
 
-                    TCIBoxWrite();
-                    TCIBoxWrite(caption + "：" + messageBoxText);
-                    TCIBox.ScrollToEnd();
-                    MessageBoxResult result = MessageBox.Show(this, files[i] + "\r" + messageBoxText, caption, button, icon);
+                    TextBoxMainWrite();
+                    TextBoxMainWrite(msgCaption + "：" + msgText);
+                    TextBoxMain.ScrollToEnd();
+
+                    var result = MessageBox.Show(this, files[fileIndex] + "\r" + msgText, msgCaption, MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
 
                     // ダイアログでの選択を判別
                     if (result == MessageBoxResult.Yes)
                     {
                         // はいを選んだ場合
-                        TCIBoxWrite();
-                        TCIBoxWrite(">>はい");
+                        TextBoxMainWrite();
+                        TextBoxMainWrite(">>はい");
 
-                        // .tjaファイルを検索
-                        IEnumerable<string> tjafiles = Directory.EnumerateFiles(files[i], "*.tja", SearchOption.AllDirectories);
+                        // ディレクトリから.tjaファイルを検索（サブディレクトリを含む）
+                        var tjaFiles = Directory.EnumerateFiles(files[fileIndex], "*.tja", SearchOption.AllDirectories);
 
-                        if (tjafiles.Count() > 0)
+                        if (tjaFiles.Count() >= 1)
                         {
-                            foreach (string str in tjafiles)
+                            // .tjaファイルが1件以上の場合
+                            foreach (string tjaFilePath in tjaFiles)
                             {
-                                TCIBoxWrite();
-                                TCIBoxWrite(str);
-                                OTCConvert(str);
+                                TextBoxMainWrite();
+                                TextBoxMainWrite(tjaFilePath);
+                                OTCConvert(tjaFilePath);
                             }
 
-                            messageBoxText = tjafiles.Count() + "件の.tjaファイルを変換しました。";
-                            caption = "情報";
-                            button = MessageBoxButton.OK;
-                            icon = MessageBoxImage.Information;
+                            msgText = tjaFiles.Count() + "件の.tjaファイルを変換しました。";
                         }
                         else
                         {
-                            messageBoxText = ".tjaファイルがありませんでした。";
-                            caption = "情報";
-                            button = MessageBoxButton.OK;
-                            icon = MessageBoxImage.Information;
-
-                            TCIBoxWrite();
-                            TCIBoxWrite(messageBoxText);
+                            // .tjaファイルが0件の場合
+                            msgText = ".tjaファイルがありませんでした。";
                         }
-                        TCIBox.ScrollToEnd();
-                        MessageBox.Show(this, messageBoxText, caption, button, icon);
+
+                        TextBoxMainWrite();
+                        TextBoxMainWrite(msgText);
+                        TextBoxMain.ScrollToEnd();
+
+                        MessageBox.Show(this, msgText, "情報", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
                     {
                         // いいえを選んだ場合
-                        TCIBoxWrite();
-                        TCIBoxWrite(">>いいえ");
+                        TextBoxMainWrite();
+                        TextBoxMainWrite(">>いいえ");
                     }
                 }
                 else
                 {
                     // ファイルが読み込まれた場合
-                    OTCConvert(files[i]);
+                    OTCConvert(files[fileIndex]);
                 }
             }
 
-            TCIBoxWrite();
-            TCIBoxWrite("処理完了");
+            TextBoxMainWrite();
+            TextBoxMainWrite("処理完了");
 
-            TCIBox.ScrollToEnd();
+            TextBoxMain.ScrollToEnd();
         }
 
         private void OTCConvert(string filePath)
@@ -202,19 +206,16 @@ namespace KoiotoOTCConverter
             // .tjaのみ許可
             if (Path.GetExtension(filePath) == ".tja")
             {
-                var encord = Encoding.GetEncoding("SHIFT_JIS");
-                var tja = new StreamReader(filePath, encord);
+                var tja = new StreamReader(filePath, Encoding.GetEncoding("SHIFT_JIS"));
 
-                string tjaLine;
+                string tjaLine;     // 現在の行
+                int countLine = 0;  // 現在の行数
 
-                OpenTaikoChartInfomation tci = new OpenTaikoChartInfomation();
+                var tci = new OpenTaikoChartInfomation();
 
-                OpenTaikoChartInfomation_Courses tcic = new OpenTaikoChartInfomation_Courses();
+                var tcic = new OpenTaikoChartInfomation_Courses();
 
-                OpenTaikoChartCourse tcc = new OpenTaikoChartCourse();
-
-                int cCourse = 0;    // Courseの数（.Count()で代用可能かも）
-                int cLine = 0;      // 現在読み込んでいる.tjaの行数
+                var tcc = new OpenTaikoChartCourse();
 
                 var artist = new List<string>() { };
                 var creator = new List<string>() { };
@@ -226,18 +227,21 @@ namespace KoiotoOTCConverter
                 var measures = new List<List<string>>() { };
                 var measureLine = new List<string>() { };
 
-                string nowdifficulty = "Oni";   // 現在の難易度
-                int nowlevel = 0;               // 現在のレベル
-                int playside = 0;               // 現在のプレイサイド 0:シングル, 1:ダブル1P, 2:ダブル2P
+                string nowDifficulty = "Oni";   // 現在の難易度
+                int nowLevel = 0;               // 現在のレベル
+                int nowPlayside = 0;            // 現在のプレイサイド 0:シングル, 1:ダブル1P, 2:ダブル2P
+                int? nowDoubleplayScoreinit = null;     // [DP時]現在のSCOREINIT
+                int? nowDoubleplayScorediff = null;     // [DP時]現在のSCOREDIFF
 
-                courseInitialize();
+                bool isMeasure = false;     // #START～#END内かどうか？
+                var attentionMsg = new List<string>() { };  // 警告メッセージのリスト
 
                 // 1行ずつ処理
                 while (!tja.EndOfStream)
                 {
                     tjaLine = tja.ReadLine();
 
-                    cLine++;
+                    countLine++;
 
                     comment = tjaLine.IndexOf(commentStr);
 
@@ -245,7 +249,7 @@ namespace KoiotoOTCConverter
                     {
                         // コメント文の削除
                         string str = tjaLine.Substring(comment);
-                        attentionMsg.Add("注意：[" + cLine + "行目] コメント文 " + str + " は削除されます。");
+                        attentionMsg.Add("注意：[" + countLine + "行目] コメント文 " + str + " は削除されます。");
 
                         tjaLine = tjaLine.Substring(0, comment);
                     }
@@ -266,7 +270,6 @@ namespace KoiotoOTCConverter
 
                     course = tjaLine.IndexOf(courseStr);
                     level = tjaLine.IndexOf(levelStr);
-                    style = tjaLine.IndexOf(styleStr);
 
                     scoreinit = tjaLine.IndexOf(scoreinitStr);
                     scorediff = tjaLine.IndexOf(scorediffStr);
@@ -288,29 +291,29 @@ namespace KoiotoOTCConverter
 
                     if (subtitle == 0)
                     {
-                        string str;
-                        str = tjaLine.Substring(subtitleStr.Length);
+                        string subtitleData;
+                        subtitleData = tjaLine.Substring(subtitleStr.Length);
 
-                        if (str.Length > 1)
+                        if (subtitleData.Length >= 2)
                         {
-                            switch (str.Substring(0, 2))
+                            switch (subtitleData.Substring(0, 2))
                             {
                                 // 先頭2文字による処理分け
                                 case "--":
-                                    artist.Add(str.Substring(2));
+                                    artist.Add(subtitleData.Substring(2));
                                     tci.artist = artist.ToArray();
                                     break;
                                 case "++":
-                                    tci.subtitle = str.Substring(2);
+                                    tci.subtitle = subtitleData.Substring(2);
                                     break;
                                 default:
-                                    tci.subtitle = str;
+                                    tci.subtitle = subtitleData;
                                     break;
                             }
                         }
                         else
                         {
-                            tci.subtitle = str;
+                            tci.subtitle = subtitleData;
                         }
                     }
 
@@ -342,28 +345,29 @@ namespace KoiotoOTCConverter
                     if (movieoffset == 0)
                     {
                         // .tciではオフセットが逆
-                        tci.movieoffset = doubleSubstring(tjaLine, movieoffsetStr.Length) * -1;
+                        tci.movieoffset = DoubleSubstring(tjaLine, movieoffsetStr.Length) * -1;
                     }
 
                     if (bpm == 0)
                     {
-                        tci.bpm = doubleSubstring(tjaLine, bpmStr.Length);
+                        tci.bpm = DoubleSubstring(tjaLine, bpmStr.Length);
                     }
 
                     if (offset == 0)
                     {
                         // .tciではオフセットが逆
-                        tci.offset = doubleSubstring(tjaLine, offsetStr.Length) * -1;
+                        tci.offset = DoubleSubstring(tjaLine, offsetStr.Length) * -1;
                     }
 
                     if (demostart == 0)
                     {
-                        tci.songpreview = doubleSubstring(tjaLine, demostartStr.Length);
+                        tci.songpreview = DoubleSubstring(tjaLine, demostartStr.Length);
                     }
 
                     if (course == 0)
                     {
                         string str = tjaLine.Substring(courseStr.Length);
+
                         switch (str)
                         {
                             case "Easy":
@@ -371,56 +375,42 @@ namespace KoiotoOTCConverter
                             case "Hard":
                             case "Oni":
                             case "Edit":
-                                nowdifficulty = str;
+                                nowDifficulty = str;
                                 break;
                             case "0":
-                                nowdifficulty = "Easy";
+                                nowDifficulty = "Easy";
                                 break;
                             case "1":
-                                nowdifficulty = "Normal";
+                                nowDifficulty = "Normal";
                                 break;
                             case "2":
-                                nowdifficulty = "Hard";
+                                nowDifficulty = "Hard";
                                 break;
                             case "4":
-                                nowdifficulty = "Edit";
+                                nowDifficulty = "Edit";
                                 break;
                             case "3":
                             default:
-                                nowdifficulty = "Oni";
+                                nowDifficulty = "Oni";
                                 break;
                         }
                     }
 
                     if (level == 0)
                     {
-                        nowlevel = intSubstring(tjaLine, levelStr.Length);
-                    }
-
-                    if (style == 0)
-                    {
-                        string str = tjaLine.Substring(styleStr.Length);
-                        switch (str)
-                        {
-                            case "Double":
-                            case "Couple":
-                            case "2":
-                                bdoubleplay = true;
-                                break;
-                            default:
-                                bdoubleplay = false;
-                                break;
-                        }
+                        nowLevel = IntSubstring(tjaLine, levelStr.Length);
                     }
 
                     if (scoreinit == 0)
                     {
-                        tcc.scoreinit = intSubstring(tjaLine, scoreinitStr.Length);
+                        tcc.scoreinit = ScoreSubstring(tjaLine, scoreinitStr.Length);
+                        nowDoubleplayScoreinit = tcc.scoreinit;
                     }
 
                     if (scorediff == 0)
                     {
-                        tcc.scorediff = intSubstring(tjaLine, scorediffStr.Length);
+                        tcc.scorediff = ScoreSubstring(tjaLine, scorediffStr.Length);
+                        nowDoubleplayScorediff = tcc.scorediff;
                     }
 
                     if (balloon == 0)
@@ -440,31 +430,31 @@ namespace KoiotoOTCConverter
 
                     if (end == 0)
                     {
-                        bmeasures = false;
+                        isMeasure = false;
 
-                        tcic.difficulty = nowdifficulty.ToLower();
-                        tcic.level = nowlevel;
+                        tcic.difficulty = nowDifficulty.ToLower();
+                        tcic.level = nowLevel;
 
                         tcc.measures = measures.Select(a => a.ToArray()).ToArray();
 
                         if (attentionMsg.Count > 0)
                         {
                             // .tccに関する警告メッセージの出力
-                            TCIBoxWrite();
+                            TextBoxMainWrite();
                             foreach (var msg in attentionMsg)
                             {
-                                TCIBoxWrite(msg);
+                                TextBoxMainWrite(msg);
                             }
                         }
 
                         bool dupDificculty = false; // 被っている難易度が存在するか？
                         int dupCourse = 0;          // 被っている難易度の位置
 
-                        if (cCourse >= 1)
+                        if (courses.Count >= 1)
                         {
                             foreach (var item in tci.courses)
                             {
-                                if (item.difficulty == nowdifficulty.ToLower())
+                                if (item.difficulty == nowDifficulty.ToLower())
                                 {
                                     // 難易度の被りを検出
                                     dupDificculty = true;
@@ -477,89 +467,58 @@ namespace KoiotoOTCConverter
                         if (dupDificculty)
                         {
                             // 既存のCourseに上書き
-                            if (bdoubleplay)
+                            if (nowPlayside > 0)
                             {
-                                // DP時
-                                switch (playside)
-                                {
-                                    case 1:
-                                    case 2:
-                                        OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowdifficulty + "_" + playside + "P", ".tcc");
-                                        multiple.Add(nowdifficulty + "_" + playside + "P.tcc");
-                                        tci.courses[dupCourse].multiple = multiple.ToArray();
-                                        break;
-                                    default:
-                                        TCIBoxWrite();
-                                        TCIBoxWrite("注意：難易度" + nowdifficulty + "は2人用の譜面が必要ですが、譜面数が足りていません。");
-                                        for (int i = 1; i <= 2; i++)
-                                        {
-                                            // 暫定的に同じ譜面で埋める
-                                            OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowdifficulty + "_" + i + "P", ".tcc");
-                                            tci.courses[dupCourse].single = nowdifficulty + "_" + i + "P.tcc";
-                                        }
-                                        break;
-                                }
+                                // DP
+                                tcc.scoreinit = nowDoubleplayScoreinit;
+                                tcc.scorediff = nowDoubleplayScorediff;
+
+                                OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty + "_" + nowPlayside + "P", ".tcc");
+                                multiple.Add(nowDifficulty + "_" + nowPlayside + "P.tcc");
+                                tci.courses[dupCourse].multiple = multiple.ToArray();
                             }
                             else
                             {
-                                // SP時
-                                OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowdifficulty, ".tcc");
-                                tci.courses[dupCourse].single = nowdifficulty + ".tcc";
+                                // SP
+                                OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty, ".tcc");
+                                tci.courses[dupCourse].single = nowDifficulty + ".tcc";
                             }
 
                         }
                         else
                         {
                             // 新しいCourseを作成
-                            if (bdoubleplay)
+                            if (nowPlayside > 0)
                             {
-                                // DP時
-                                switch (playside)
-                                {
-                                    case 1:
-                                    case 2:
-                                        OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowdifficulty + "_" + playside + "P", ".tcc");
-                                        multiple.Add(nowdifficulty + "_" + playside + "P.tcc");
-                                        break;
-                                    default:
-                                        TCIBoxWrite();
-                                        TCIBoxWrite("注意：難易度" + nowdifficulty + "は2人用の譜面が必要ですが、譜面数が足りていません。");
-                                        for (int i = 1; i <= 2; i++)
-                                        {
-                                            // 暫定的に同じ譜面で埋める
-                                            OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowdifficulty + "_" + i + "P", ".tcc");
-                                            multiple.Add(nowdifficulty + "_" + i + "P.tcc");
-                                        }
-                                        tcic.multiple = multiple.ToArray();
-                                        break;
-                                }
+                                // DP
+                                OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty + "_" + nowPlayside + "P", ".tcc");
+                                multiple.Add(nowDifficulty + "_" + nowPlayside + "P.tcc");
                             }
                             else
                             {
-                                // SP時
-                                OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowdifficulty, ".tcc");
-                                tcic.single = nowdifficulty + ".tcc";
+                                // SP
+                                OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty, ".tcc");
+                                tcic.single = nowDifficulty + ".tcc";
                             }
 
                             // Courseの追加
                             courses.Add(tcic);
                             tci.courses = courses.ToArray();
-
-                            cCourse++;
                         }
 
                         // 一部の変数をリセット
-                        courseInitialize();
+                        attentionMsg = new List<string>() { };
                         tcic = new OpenTaikoChartInfomation_Courses();
                         tcc = new OpenTaikoChartCourse();
                         measures.Clear();
                     }
 
-                    if (colon >= 0)
+                    if (colon >= 0 & sharp != 0)
                     {
                         // ヘッダーチェック
-                        string str = tjaLine.Substring(0, colon + colonStr.Length);
-                        switch (str)
+                        string header = tjaLine.Substring(0, colon + colonStr.Length);
+
+                        switch (header)
                         {
                             case titleStr:
                             case subtitleStr:
@@ -578,7 +537,7 @@ namespace KoiotoOTCConverter
                             case balloonStr:
                                 break;
                             default:
-                                attentionMsg.Add("注意：[" + cLine + "行目] " + str + " はKoiotoでサポートされていません。");
+                                attentionMsg.Add("注意：[" + countLine + "行目] " + header + " はKoiotoでサポートされていません。");
                                 break;
                         }
                     }
@@ -586,9 +545,28 @@ namespace KoiotoOTCConverter
                     if (sharp == 0 & start != 0 & end != 0)
                     {
                         // 命令文チェック
-                        if (!tccUnsupported(tjaLine))
+                        string instruction = tjaLine;
+
+                        int i = tjaLine.IndexOf(" ");
+
+                        if (i >= 0)
                         {
-                            attentionMsg.Add("注意：[" + cLine + "行目] " + tjaLine + " はKoiotoでサポートされていません。");
+                            // 命令文だけ抜き出す
+                            instruction = tjaLine.Substring(0, i + sharpStr.Length);
+                        }
+
+                        switch (instruction)
+                        {
+                            case bpmchangeStr:
+                            case gogostartStr:
+                            case gogoendStr:
+                            case measureStr:
+                            case scrollStr:
+                            case delayStr:
+                                break;
+                            default:
+                                attentionMsg.Add("注意：[" + countLine + "行目] " + instruction + " はKoiotoでサポートされていません。");
+                                break;
                         }
                     }
 
@@ -596,18 +574,18 @@ namespace KoiotoOTCConverter
                     {
                         // 唯一の#START～#END外の命令文なので特別扱い
                         // 命令文の挿入
-                        string str = tccInstructionConvert(tjaLine);
+                        string str = InstructionConvert(tjaLine);
                         measureLine.Add(str);
                     }
 
-                    if (bmeasures)
+                    if (isMeasure)
                     {
                         if (tjaLine.Length > 0)
                         {
                             if (sharp == 0)
                             {
                                 // 命令文の挿入
-                                string str = tccInstructionConvert(tjaLine);
+                                string str = InstructionConvert(tjaLine);
                                 measureLine.Add(str);
                             }
                             else
@@ -628,9 +606,9 @@ namespace KoiotoOTCConverter
 
                     if (start == 0)
                     {
-                        bmeasures = true;
+                        isMeasure = true;
 
-                        if (tjaLine.Length > startStr.Length)
+                        if (tjaLine.Length == startStr.Length + 3)
                         {
                             // #START P1, #START P2への対応
                             string str = tjaLine.Substring(startStr.Length + 1);
@@ -638,21 +616,19 @@ namespace KoiotoOTCConverter
                             switch (str)
                             {
                                 case "P1":
-                                    playside = 1;
-                                    bdoubleplay = true;
+                                    nowPlayside = 1;
                                     break;
                                 case "P2":
-                                    playside = 2;
-                                    bdoubleplay = true;
+                                    nowPlayside = 2;
                                     break;
                                 default:
-                                    playside = 0;
+                                    nowPlayside = 0;
                                     break;
                             }
                         }
                         else
                         {
-                            playside = 0;
+                            nowPlayside = 0;
                         }
                     }
                 }
@@ -663,8 +639,8 @@ namespace KoiotoOTCConverter
             }
             else
             {
-                TCIBoxWrite();
-                TCIBoxWrite("エラー：読み込めるのは.tjaファイルのみです。");
+                TextBoxMainWrite();
+                TextBoxMainWrite("エラー：読み込めるのは.tjaファイルのみです。");
             }
         }
 
@@ -678,21 +654,12 @@ namespace KoiotoOTCConverter
                 var serializer = new DataContractJsonSerializer(otcType);
                 serializer.WriteObject(writer, otc);
 
-                TCIBoxWrite();
-                TCIBoxWrite(directory + "\\" + filename + extension + " が作成されました。");
+                TextBoxMainWrite();
+                TextBoxMainWrite(directory + "\\" + filename + extension + " が作成されました。");
             }
         }
 
-        private void TCIBoxWrite()
-        {
-            TCIBoxWrite("");
-        }
-        private void TCIBoxWrite(string text)
-        {
-            TCIBox.AppendText("\r" + text);
-        }
-
-        private string tccInstructionConvert(string tjaLine)
+        private string InstructionConvert(string tjaLine)
         {
             // 命令文の変換
             tjaLine = tjaLine.Replace(bpmchangeStr, bpmchangeTcc);
@@ -704,35 +671,22 @@ namespace KoiotoOTCConverter
             return tjaLine;
         }
 
-        private bool tccUnsupported(string tjaLine)
+        private void TextBoxMainWrite()
         {
-            // 命令文がKoiotoでサポートされているかのチェック
-            int i = tjaLine.IndexOf(" ");
-            if (i >= 0)
-            {
-                tjaLine = tjaLine.Substring(0, i + sharpStr.Length);
-            }
-
-            switch (tjaLine)
-            {
-                case bpmchangeStr:
-                case gogostartStr:
-                case gogoendStr:
-                case measureStr:
-                case scrollStr:
-                case delayStr:
-                    return true;
-                default:
-                    return false;
-            }
+            TextBoxMainWrite("");
         }
 
-        private int intSubstring(string tjaLine, int i)
+        private void TextBoxMainWrite(string text)
         {
-            return (int)Math.Truncate(doubleSubstring(tjaLine, i));
+            TextBoxMain.AppendText("\r" + text);
         }
 
-        private double doubleSubstring(string tjaLine, int i)
+        private int IntSubstring(string tjaLine, int i)
+        {
+            return (int)Math.Truncate(DoubleSubstring(tjaLine, i));
+        }
+
+        private double DoubleSubstring(string tjaLine, int i)
         {
             tjaLine = tjaLine.Substring(i);
 
@@ -745,6 +699,25 @@ namespace KoiotoOTCConverter
                 return 0;
             }
         }
+
+        private int? ScoreSubstring(string tjaLine, int i)
+        {
+            // SCOREINIT: SCOREDIFF:用のInsSubstring
+            // 空白だった場合にnullを返す
+
+            tjaLine = tjaLine.Substring(i);
+
+            if (tjaLine.Length != 0)
+            {
+                return int.Parse(tjaLine);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        #region OpenTaikoChartClass
 
         [DataContract]
         public class OpenTaikoChartInfomation
@@ -792,9 +765,9 @@ namespace KoiotoOTCConverter
         public class OpenTaikoChartCourse
         {
             [DataMember(Order = 1)]
-            public int? scoreinit { get; set; }
+            public int? scoreinit { get; set; }  // ?を外してみる
             [DataMember(Order = 2)]
-            public int? scorediff { get; set; }
+            public int? scorediff { get; set; }  // ?を外してみる
             [DataMember(Order = 3)]
             public int? scoreshinuchi { get; set; }
             [DataMember(Order = 4)]
@@ -803,17 +776,7 @@ namespace KoiotoOTCConverter
             public string[][] measures { get; set; }
         }
 
-        private void courseInitialize()
-        {
-            bdoubleplay = false;
-            bmeasures = false;
-            attentionMsg = new List<string>() { };
-        }
-
-        bool bdoubleplay = false;   // ダブルプレイかどうか？
-        bool bmeasures = false;     // #START～#END内かどうか？
-
-        List<string> attentionMsg;  // 警告メッセージのリスト
+        #endregion
 
         // 汎用
         int comment, colon, sharp, comma;
@@ -835,7 +798,8 @@ namespace KoiotoOTCConverter
         const string demostartStr = "DEMOSTART:";
 
         // .tci対応（コース別）
-        int course, level, style;
+        int course, level;
+        //int style;    // DPかどうかは#STARTの後のP1,P2で判別可能なので省略
         const string courseStr = "COURSE:";
         const string levelStr = "LEVEL:";
         const string styleStr = "STYLE:";
@@ -901,7 +865,7 @@ namespace KoiotoOTCConverter
         string gogostartTcc = "#gogobegin";
         string measureTcc = "#tsign ";
 
-        // 生成されたファイルの編集しやすさを考えるとnullが入るより""入れたほうがいいかもしれない
+        // 生成されたファイルの編集しやすさを考えるとstringにはnullが入るより""入れたほうがいいのかもしれない（特にstring[]）
         // /が　＼/みたいな書き方で出力されてしまう（JSONではそれが正しいらしい）
         // ＼は＼＼と出力するのがOTCの規定らしい
         // 出力ディレクトリを選べる機能
@@ -909,9 +873,10 @@ namespace KoiotoOTCConverter
         // SUBTITLE:の振り分け先（subtitle,artist）を++,--のケースを含めて設定できる機能
         // 事前に設定したcreatorが格納される機能
         // 事前に設定した補正値をoffsetにかける機能
+        // BGIMAGE:とBGMOVIE:の両方が定義されていた際にどちらを優先させるかの設定
         // Easy, Normal, Hard, Oni, Editの各.tccファイルを事前に設定した名前で出力できる機能（"0_Easy.tcc","1_Normal.tcc"など）
         // 上の機能、できれば.tjaファイル名の名前も指定できるようにしたいところ。{filename}とか
-        // #N,#E,#Mが他の命令文でも検知してしまう問題への対応
+        // #N,#E,#Mが他の命令文でも検知してしまう問題への対応。文字列完全一致だとtrueでいい気はする
         // 真打の自動計算
     }
 }
