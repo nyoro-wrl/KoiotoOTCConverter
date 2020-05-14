@@ -5,13 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KoiotoOTCConverter"
         mc:Ignorable="d"
-        Title="設定" Height="180" Width="369.5">
+        Title="設定" Height="244" Width="369.5" ResizeMode="CanMinimize" KeyDown="FormMain_KeyDown">
     <Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
-        <Label Content="OFFSETの補正値" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="TextBoxOFFSET" HorizontalAlignment="Left" Height="23" Margin="110,12,0,0" Text="0" VerticalAlignment="Top" Width="120" PreviewTextInput="TextBoxOFFSET_PreviewTextInput" PreviewMouseWheel="TextBoxOFFSET_PreviewMouseWheel" KeyDown="TextBox_KeyDown"/>
-        <Button x:Name="Save" Content="保存" HorizontalAlignment="Left" Margin="156,102,0,0" VerticalAlignment="Top" Width="88" Height="26" Click="Save_Click"/>
-        <Button x:Name="Cancel" Content="キャンセル" HorizontalAlignment="Left" Margin="252,102,0,0" VerticalAlignment="Top" Width="88" Height="26" Click="Cancel_Click"/>
-        <TextBlock HorizontalAlignment="Left" Margin="14,41,0,0" VerticalAlignment="Top" Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"><Run Text="プラス：譜面のタイミングが遅くなります"/><LineBreak/><Run Text="マイナス：譜面のタイミング"/><Run Text="が早くなります"/><LineBreak/><Run Text="※太鼓さん次郎2から変換する場合は"/><Run Text=" "/><Run Text="0.016"/><Run Text=" "/><Run Text="がオススメ"/></TextBlock>
-        <Button x:Name="Reset" Content="既定値に戻す" HorizontalAlignment="Left" Margin="14,102,0,0" VerticalAlignment="Top" Width="88" Height="26" Click="Reset_Click"/>
+        <CheckBox x:Name="CheckBoxOffset" Content="offsetの補正値：" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.3,0.433" Padding="4,3,0,4" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Unchecked="CheckBox_CheckChanged" Checked="CheckBox_CheckChanged"/>
+        <TextBox x:Name="TextBoxOffset" HorizontalAlignment="Left" Height="23" Margin="123,10,0,0" VerticalAlignment="Top" Width="120" PreviewTextInput="TextBoxOffset_PreviewTextInput" PreviewMouseWheel="TextBoxOffset_PreviewMouseWheel" KeyDown="TextBox_KeyDown" FontSize="14" LostFocus="TextBoxOffset_LostFocus" InputMethod.IsInputMethodEnabled="False" IsEnabled="False"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,33,0,0" VerticalAlignment="Top" Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Padding="7,5,5,5"><Run Text="プラス：譜面のタイミングが遅くなります"/><LineBreak/><Run Text="マイナス：譜面のタイミング"/><Run Text="が早くなります"/><LineBreak/><Run Text="※太鼓さん次郎2から変換する場合は"/><Run Text=" "/><Run Text="0.016"/><Run Text=" "/><Run Text="がオススメ"/></TextBlock>
+        <CheckBox x:Name="CheckBoxCreator" Content="creatorの格納：" HorizontalAlignment="Left" Margin="10,96,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.3,0.433" Padding="4,3,0,4" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Checked="CheckBox_CheckChanged" Unchecked="CheckBox_CheckChanged"/>
+        <TextBox x:Name="TextBoxCreator" HorizontalAlignment="Left" Height="23" Margin="118,96,0,0" VerticalAlignment="Top" Width="120" KeyDown="TextBox_KeyDown" FontSize="14" IsEnabled="False"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,119,0,0" VerticalAlignment="Top" Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Padding="7,5,5,5" Text="現状1つしか格納できません。"/>
+        <Button x:Name="Reset" Content="既定値に戻す" HorizontalAlignment="Left" Margin="10,158,0,0" VerticalAlignment="Top" Width="88" Height="26" Click="Reset_Click"/>
+        <Button x:Name="Save" Content="保存" HorizontalAlignment="Left" Margin="152,158,0,0" VerticalAlignment="Top" Width="88" Height="26" Click="Save_Click"/>
+        <Button x:Name="Cancel" Content="キャンセル" HorizontalAlignment="Left" Margin="248,158,0,0" VerticalAlignment="Top" Width="88" Height="26" Click="Cancel_Click"/>
     </Grid>
 </Window>

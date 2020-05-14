@@ -1,5 +1,4 @@
-﻿using Microsoft.Win32;
-using Microsoft.WindowsAPICodePack.Dialogs;
+﻿using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -362,17 +361,21 @@ namespace KoiotoOTCConverter
                     if (offset == 0)
                     {
                         // .tciではオフセットが逆
-                        // doubleの計算誤差対策で四捨五入している
-                        double i = DoubleSubstring(tjaLine, offsetStr.Length) * -1 + setting.OFFSET;
-                        tci.offset = Math.Round(i,15);
+                        tci.offset = DoubleSubstring(tjaLine, offsetStr.Length) * -1;
 
-                        if (setting.OFFSET > 0)
+                        if (setting.bOffset)
                         {
-                            attentionMsg.Add("変更：offsetに +" + setting.OFFSET + " の補正がかかります。");
-                        }
-                        else if (setting.OFFSET < 0)
-                        {
-                            attentionMsg.Add("変更：offsetに " + setting.OFFSET + " の補正がかかります。");
+                            double i = (double)tci.offset + setting.offset;
+                            tci.offset = Math.Round(i, 15);
+
+                            if (setting.offset > 0)
+                            {
+                                attentionMsg.Add("変更：offsetに +" + setting.offset + " の補正がかかります。");
+                            }
+                            else if (setting.offset < 0)
+                            {
+                                attentionMsg.Add("変更：offsetに " + setting.offset + " の補正がかかります。");
+                            }
                         }
                     }
 
@@ -649,6 +652,14 @@ namespace KoiotoOTCConverter
                             nowPlayside = 0;
                         }
                     }
+                }
+
+                if (setting.bCreator)
+                {
+                    creator.Add(setting.creator);
+                    tci.creator = creator.ToArray();
+                    TextBoxMainWrite();
+                    TextBoxMainWrite("変更：creatorに \"" + setting.creator + "\" が格納されます。");
                 }
 
                 OTCWrite<OpenTaikoChartInfomation>(tci, Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath), ".tci");

@@ -1,19 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace KoiotoOTCConverter
 {
@@ -36,59 +27,67 @@ namespace KoiotoOTCConverter
             if (Keyboard.IsKeyDown(Key.Escape))
             {
                 // Escキーで終了
-                Application.Current.Shutdown();
+                this.Close();
             }
         }
 
         private void SetSettingText()
         {
-            TextBoxOFFSET.Text = setting.OFFSET.ToString();
+            TextBoxOffset.Text = setting.offset.ToString();
+            CheckBoxOffset.IsChecked = setting.bOffset;
+
+            TextBoxCreator.Text = setting.creator;
+            CheckBoxCreator.IsChecked = setting.bCreator;
         }
 
         private void GetSettingText()
         {
-            var defaultValue = new Setting();
+            setting.offset = Double.Parse(TextBoxOffset.Text);
+            setting.bOffset = (bool)CheckBoxOffset.IsChecked;
 
-            if (Double.TryParse(TextBoxOFFSET.Text, out double result))
-            {
-                setting.OFFSET = result;
-            }
-            else
-            {
-                setting.OFFSET = defaultValue.OFFSET;
-            }
+            setting.creator = TextBoxCreator.Text;
+            setting.bCreator = (bool)CheckBoxCreator.IsChecked;
         }
 
-        private void TextBoxOFFSET_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        private void TextBoxOffset_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             // 数値のみ入力を許可する
             Regex regex = new Regex("[^0-9.-]+");
-            if (TextBoxOFFSET.Text.Length > 0 && e.Text == "-")
+            if (TextBoxOffset.Text.Length > 0 && e.Text == "-")
             {
                 e.Handled = true;
                 return;
             }
-            var text = TextBoxOFFSET.Text + e.Text;
+            var text = TextBoxOffset.Text + e.Text;
             e.Handled = regex.IsMatch(text);
         }
 
-        private void TextBoxOFFSET_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        private void TextBoxOffset_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (TextBoxOffset.Text == "" | TextBoxOffset.Text == "-0")
+            {
+                // 空白か-0を0に修正する
+                TextBoxOffset.Text = "0";
+            }
+        }
+
+        private void TextBoxOffset_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             double variation = 0.001;
 
             if (e.Delta > 0)
             {
                 // ホイール上回転
-                double i = Double.Parse(TextBoxOFFSET.Text);
+                double i = Double.Parse(TextBoxOffset.Text);
                 i += variation;
-                TextBoxOFFSET.Text = i.ToString();
+                TextBoxOffset.Text = i.ToString();
             }
             else
             {
                 // ホイール下回転
-                double i = Double.Parse(TextBoxOFFSET.Text);
+                double i = Double.Parse(TextBoxOffset.Text);
                 i -= variation;
-                TextBoxOFFSET.Text = i.ToString();
+                TextBoxOffset.Text = i.ToString();
             }
         }
 
@@ -122,11 +121,6 @@ namespace KoiotoOTCConverter
 
                 return setting;
             }
-        }
-
-        public class Setting
-        {
-            public double OFFSET { get; set; } = 0;
         }
 
         const string settingPath = @"KoiotoOTCConverter.setting.json";
@@ -174,6 +168,35 @@ namespace KoiotoOTCConverter
             {
                 // Enterキーで保存して閉じる
                 SaveClose();
+            }
+        }
+
+        public class Setting
+        {
+            public double offset { get; set; } = 0;
+            public bool bOffset { get; set; } = false;
+            public string creator { get; set; }
+            public bool bCreator { get; set; } = false;
+        }
+
+        private void CheckBox_CheckChanged(object sender, RoutedEventArgs e)
+        {
+            // チェックボックスの変更
+            if ((bool)CheckBoxOffset.IsChecked)
+            {
+                TextBoxOffset.IsEnabled = true;
+            }
+            else
+            {
+                TextBoxOffset.IsEnabled = false;
+            }
+            if ((bool)CheckBoxCreator.IsChecked)
+            {
+                TextBoxCreator.IsEnabled = true;
+            }
+            else
+            {
+                TextBoxCreator.IsEnabled = false;
             }
         }
     }
