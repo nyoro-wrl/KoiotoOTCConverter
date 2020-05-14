@@ -21,6 +21,7 @@ namespace KoiotoOTCConverter
     {
         string otcVer = "Rev2"; // 対応しているOpenTaikoChartのバージョン
         string appDirectory = Path.GetDirectoryName(Path.GetFullPath(Environment.GetCommandLineArgs()[0])); // KoiotoOTCConverterが実行されているディレクトリ
+        SettingWindow.Setting setting;  // 設定ファイルの値
 
         public MainWindow()
         {
@@ -93,6 +94,7 @@ namespace KoiotoOTCConverter
         {
             // [ファイル]→設定
             var sw = new SettingWindow();
+            sw.Owner = this;
             sw.ShowDialog();
         }
 
@@ -125,6 +127,10 @@ namespace KoiotoOTCConverter
 
         private void FileReader(string[] files, int startIndex, int endIndex)
         {
+            // 設定ファイルの値読み込み
+            setting = new SettingWindow.Setting();
+            setting = SettingWindow.LoadSetting(setting);
+
             for (int fileIndex = startIndex; fileIndex < endIndex; fileIndex++)
             {
                 TextBoxMainWrite();
@@ -356,7 +362,18 @@ namespace KoiotoOTCConverter
                     if (offset == 0)
                     {
                         // .tciではオフセットが逆
-                        tci.offset = DoubleSubstring(tjaLine, offsetStr.Length) * -1;
+                        // doubleの計算誤差対策で四捨五入している
+                        double i = DoubleSubstring(tjaLine, offsetStr.Length) * -1 + setting.OFFSET;
+                        tci.offset = Math.Round(i,15);
+
+                        if (setting.OFFSET > 0)
+                        {
+                            attentionMsg.Add("変更：offsetに +" + setting.OFFSET + " の補正がかかります。");
+                        }
+                        else if (setting.OFFSET < 0)
+                        {
+                            attentionMsg.Add("変更：offsetに " + setting.OFFSET + " の補正がかかります。");
+                        }
                     }
 
                     if (demostart == 0)
@@ -475,15 +492,15 @@ namespace KoiotoOTCConverter
                                 tcc.scoreinit = nowDoubleplayScoreinit;
                                 tcc.scorediff = nowDoubleplayScorediff;
 
-                                string fileName = OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty + "_" + nowPlayside + "P", ".tcc");
-                                multiple.Add(fileName);
+                                string relativePath = OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty + "_" + nowPlayside + "P", ".tcc");
+                                multiple.Add(relativePath);
                                 tci.courses[dupCourse].multiple = multiple.ToArray();
                             }
                             else
                             {
                                 // SP
-                                string fileName = OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty, ".tcc");
-                                tci.courses[dupCourse].single = fileName;
+                                string relativePath = OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty, ".tcc");
+                                tci.courses[dupCourse].single = relativePath;
                             }
                         }
                         else
@@ -492,14 +509,14 @@ namespace KoiotoOTCConverter
                             if (nowPlayside > 0)
                             {
                                 // DP
-                                string fileName = OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty + "_" + nowPlayside + "P", ".tcc");
-                                multiple.Add(fileName);
+                                string relativePath = OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty + "_" + nowPlayside + "P", ".tcc");
+                                multiple.Add(relativePath);
                             }
                             else
                             {
                                 // SP
-                                string fileName = OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty, ".tcc");
-                                tcic.single = fileName;
+                                string relativePath = OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty, ".tcc");
+                                tcic.single = relativePath;
                             }
 
                             // Courseの追加
@@ -648,9 +665,12 @@ namespace KoiotoOTCConverter
         private string OTCWrite<Type>(Type otc, string directory, string filename, string extension)
         {
             // .tti .ttcファイルの書き込み
-            string path = directory + @"\" + filename + extension;
+            directory += @"\";
+            string writePath = directory + filename + extension;
 
-            using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write))
+            SafeCreateDirectory(Path.GetDirectoryName(writePath));
+
+            using (var fs = new FileStream(writePath, FileMode.Create, FileAccess.Write))
             using (var writer = JsonReaderWriterFactory.CreateJsonWriter(fs, Encoding.UTF8, true, true))    // インデントと改行の挿入
             {
                 var otcType = otc.GetType();
@@ -658,10 +678,11 @@ namespace KoiotoOTCConverter
                 serializer.WriteObject(writer, otc);
 
                 TextBoxMainWrite();
-                TextBoxMainWrite(path + " が作成されました。");
+                TextBoxMainWrite(writePath + " が作成されました。");
             }
 
-            return Path.GetFileName(path);
+            // directoryから見た相対パスを返す
+            return ToRelativePath(directory, writePath);
         }
 
         private string InstructionConvert(string tjaLine)
@@ -720,6 +741,38 @@ namespace KoiotoOTCConverter
             {
                 return null;
             }
+        }
+
+        private DirectoryInfo SafeCreateDirectory(string path)
+        {
+            // 指定したパスにディレクトリが存在しない場合、ディレクトリを作成
+            if (Directory.Exists(path))
+            {
+                return null;
+            }
+
+            return Directory.CreateDirectory(path);
+        }
+
+        private string ToRelativePath(string basePath, string targetPath)
+        {
+            // 相対パスを取得
+
+            // "%"を"%25"に変換しておく（デコード対策）
+            basePath = basePath.Replace("%", "%25");
+            targetPath = targetPath.Replace("%", "%25");
+
+            Uri u1 = new Uri(basePath);
+            Uri u2 = new Uri(targetPath);
+            Uri relativeUri = u1.MakeRelativeUri(u2);
+            string relativePath = relativeUri.ToString();
+
+            relativePath = Uri.UnescapeDataString(relativePath);
+
+            // "%25"を"%"に戻す
+            relativePath = relativePath.Replace("%25", "%");
+
+            return relativePath;
         }
 
         #region OpenTaikoChartClass
@@ -877,7 +930,6 @@ namespace KoiotoOTCConverter
         // 出力後のファイルを整形しなおす機能（改行など）
         // SUBTITLE:の振り分け先（subtitle,artist）を++,--のケースを含めて設定できる機能
         // 事前に設定したcreatorが格納される機能
-        // 事前に設定した補正値をoffsetにかける機能
         // BGIMAGE:とBGMOVIE:の両方が定義されていた際にどちらを優先させるかの設定
         // Easy, Normal, Hard, Oni, Editの各.tccファイルを事前に設定した名前で出力できる機能（"0_Easy.tcc","1_Normal.tcc"など）
         // 上の機能、できれば.tjaファイル名の名前も指定できるようにしたいところ。{filename}とか
