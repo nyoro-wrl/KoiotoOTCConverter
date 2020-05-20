@@ -4,6 +4,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace KoiotoOTCConverter
@@ -38,6 +39,19 @@ namespace KoiotoOTCConverter
 
             TextBoxCreator.Text = setting.creator;
             CheckBoxCreator.IsChecked = setting.bCreator;
+
+            switch (setting.bgPriority)
+            {
+                case bgIMAGE:
+                    RadioButtonBackground2.IsChecked = true;
+                    break;
+                case bgMOVIE:
+                    RadioButtonBackground3.IsChecked = true;
+                    break;
+                default:
+                    RadioButtonBackground1.IsChecked = true;
+                    break;
+            }
         }
 
         private void GetSettingText()
@@ -47,6 +61,19 @@ namespace KoiotoOTCConverter
 
             setting.creator = TextBoxCreator.Text;
             setting.bCreator = (bool)CheckBoxCreator.IsChecked;
+
+            switch(GetRadioButtonContent(BackgroundPanel))
+            {
+                case bgIMAGE:
+                    setting.bgPriority = bgIMAGE;
+                    break;
+                case bgMOVIE:
+                    setting.bgPriority = bgMOVIE;
+                    break;
+                default:
+                    setting.bgPriority = bgDefault;
+                    break;
+            }
         }
 
         private void TextBoxOffset_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -171,14 +198,6 @@ namespace KoiotoOTCConverter
             }
         }
 
-        public class Setting
-        {
-            public double offset { get; set; } = 0;
-            public bool bOffset { get; set; } = false;
-            public string creator { get; set; }
-            public bool bCreator { get; set; } = false;
-        }
-
         private void CheckBox_CheckChanged(object sender, RoutedEventArgs e)
         {
             // チェックボックスの変更
@@ -199,5 +218,55 @@ namespace KoiotoOTCConverter
                 TextBoxCreator.IsEnabled = false;
             }
         }
+
+        private void RadioButtonBackground_Checked(object sender, RoutedEventArgs e)
+        {
+            // backgroundラジオボタンの変更
+
+            string str = "";
+
+            switch (GetRadioButtonContent(BackgroundPanel))
+            {
+                case bgDefault:
+                    str = "後に定義されたものが優先されます。";
+                    break;
+                case bgIMAGE:
+                    str = "常にBGIMAGE:が優先されます。";
+                    break;
+                case bgMOVIE:
+                    str = "常にBGMOVIE:が優先されます。";
+                    break;
+            }
+
+            TextBlockBackgound.Text = str;
+        }
+
+        private string GetRadioButtonContent(StackPanel sp)
+        {
+            foreach (RadioButton rb in sp.Children)
+            {
+                if ((bool)rb.IsChecked)
+                {
+                    return rb.Content.ToString();
+                }
+            }
+
+            return "";
+        }
+
+        public class Setting
+        {
+            public double offset { get; set; } = 0;
+            public bool bOffset { get; set; } = false;
+            public string creator { get; set; }
+            public bool bCreator { get; set; } = false;
+            public string bgPriority { get; set; } = bgDefault;
+        }
+
+        public const string bgDefault = "Default";
+        public const string bgIMAGE = "BGIMAGE";
+        public const string bgMOVIE = "BGMOVIE";
+
+        // 設定ウィンドウが出る位置がめんどくさい
     }
 }
