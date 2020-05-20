@@ -35,10 +35,10 @@ namespace KoiotoOTCConverter
         private void SetSettingText()
         {
             TextBoxOffset.Text = setting.offset.ToString();
-            CheckBoxOffset.IsChecked = setting.bOffset;
+            CheckBoxOffset.IsChecked = setting.offsetEnable;
 
             TextBoxCreator.Text = setting.creator;
-            CheckBoxCreator.IsChecked = setting.bCreator;
+            CheckBoxCreator.IsChecked = setting.creatorEnable;
 
             switch (setting.bgPriority)
             {
@@ -57,10 +57,10 @@ namespace KoiotoOTCConverter
         private void GetSettingText()
         {
             setting.offset = Double.Parse(TextBoxOffset.Text);
-            setting.bOffset = (bool)CheckBoxOffset.IsChecked;
+            setting.offsetEnable = (bool)CheckBoxOffset.IsChecked;
 
             setting.creator = TextBoxCreator.Text;
-            setting.bCreator = (bool)CheckBoxCreator.IsChecked;
+            setting.creatorEnable = (bool)CheckBoxCreator.IsChecked;
 
             switch(GetRadioButtonContent(BackgroundPanel))
             {
@@ -257,9 +257,9 @@ namespace KoiotoOTCConverter
         public class Setting
         {
             public double offset { get; set; } = 0;
-            public bool bOffset { get; set; } = false;
-            public string creator { get; set; }
-            public bool bCreator { get; set; } = false;
+            public bool offsetEnable { get; set; } = false;
+            public string creator { get; set; } = "";
+            public bool creatorEnable { get; set; } = false;
             public string bgPriority { get; set; } = bgDefault;
         }
 

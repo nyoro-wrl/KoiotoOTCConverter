@@ -468,7 +468,7 @@ namespace KoiotoOTCConverter
 
                     if (bpm == 0)
                     {
-                        tci.bpm = DoubleSubstring(tjaLine, bpmStr.Length);
+                        tci.bpm = DoubleSubstringNullable(tjaLine, bpmStr.Length);
                     }
 
                     if (offset == 0)
@@ -476,7 +476,7 @@ namespace KoiotoOTCConverter
                         // .tciではオフセットが逆
                         tci.offset = DoubleSubstring(tjaLine, offsetStr.Length) * -1;
 
-                        if (setting.bOffset)
+                        if (setting.offsetEnable)
                         {
                             double i = (double)tci.offset + setting.offset;
                             tci.offset = Math.Round(i, 15);
@@ -541,19 +541,19 @@ namespace KoiotoOTCConverter
 
                     if (scoreinit == 0)
                     {
-                        tcc.scoreinit = ScoreSubstring(tjaLine, scoreinitStr.Length);
+                        tcc.scoreinit = IntSubstringNullable(tjaLine, scoreinitStr.Length);
                         nowDoubleplayScoreinit = tcc.scoreinit;
                     }
 
                     if (scorediff == 0)
                     {
-                        tcc.scorediff = ScoreSubstring(tjaLine, scorediffStr.Length);
+                        tcc.scorediff = IntSubstringNullable(tjaLine, scorediffStr.Length);
                         nowDoubleplayScorediff = tcc.scorediff;
                     }
 
                     if (scoreshinuchi == 0)
                     {
-                        tcc.scoreshinuchi = ScoreSubstring(tjaLine, scoreshinuchiStr.Length);
+                        tcc.scoreshinuchi = IntSubstringNullable(tjaLine, scoreshinuchiStr.Length);
                         nowDoubleplayScoreshinuchi = tcc.scoreshinuchi;
                     }
 
@@ -619,14 +619,14 @@ namespace KoiotoOTCConverter
                                 tcc.scoreinit = nowDoubleplayScoreinit;
                                 tcc.scorediff = nowDoubleplayScorediff;
 
-                                string relativePath = OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty + "_" + nowPlayside + "P", ".tcc");
+                                string relativePath = OTCWrite(tcc, Path.GetDirectoryName(filePath), nowDifficulty + "_" + nowPlayside + "P", ".tcc");
                                 multipleList.Add(relativePath);
                                 tci.courses[dupCourse].multiple = multipleList.ToArray();
                             }
                             else
                             {
                                 // SP
-                                string relativePath = OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty, ".tcc");
+                                string relativePath = OTCWrite(tcc, Path.GetDirectoryName(filePath), nowDifficulty, ".tcc");
                                 tci.courses[dupCourse].single = relativePath;
                             }
                         }
@@ -636,13 +636,13 @@ namespace KoiotoOTCConverter
                             if (nowPlayside > 0)
                             {
                                 // DP
-                                string relativePath = OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty + "_" + nowPlayside + "P", ".tcc");
+                                string relativePath = OTCWrite(tcc, Path.GetDirectoryName(filePath), nowDifficulty + "_" + nowPlayside + "P", ".tcc");
                                 multipleList.Add(relativePath);
                             }
                             else
                             {
                                 // SP
-                                string relativePath = OTCWrite<OpenTaikoChartCourse>(tcc, Path.GetDirectoryName(filePath), nowDifficulty, ".tcc");
+                                string relativePath = OTCWrite(tcc, Path.GetDirectoryName(filePath), nowDifficulty, ".tcc");
                                 tcic.single = relativePath;
                             }
 
@@ -698,7 +698,7 @@ namespace KoiotoOTCConverter
 
                         if (tjaLine.Length == startStr.Length + 3)
                         {
-                            // #START P1 への対応
+                            // #START P1 などへの対応
                             string str = tjaLine.Substring(startStr.Length + 1);
 
                             if (Regex.IsMatch(str, "^P[0-9]*"))
@@ -717,7 +717,7 @@ namespace KoiotoOTCConverter
                     }
                 }
 
-                if (setting.bCreator)
+                if (setting.creatorEnable)
                 {
                     // 設定からCreatorをインポート
                     creatorList.Add(setting.creator);
@@ -738,7 +738,7 @@ namespace KoiotoOTCConverter
                     tci.creator = creatorList.Distinct(StringComparer.InvariantCultureIgnoreCase).ToArray();
                 }
 
-                // stringのnullを空文字に置き換える
+                // nullを空文字に置き換える
                 // 助長な書き方してる気がする、classをforeachで回せるかな？
                 tci.title = NullStringToEmpty(tci.title);
                 tci.subtitle = NullStringToEmpty(tci.subtitle);
@@ -748,7 +748,13 @@ namespace KoiotoOTCConverter
                 tci.background = NullStringToEmpty(tci.background);
                 tci.albumart = NullStringToEmpty(tci.albumart);
 
-                OTCWrite<OpenTaikoChartInfomation>(tci, Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath), ".tci");
+                // nullを置き換える
+                tci.movieoffset = tci.movieoffset ?? 0;
+                tci.bpm = tci.bpm ?? 120;
+                tci.offset = tci.offset ?? 0;
+                tci.songpreview = tci.songpreview ?? 0;
+
+                OTCWrite(tci, Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath), ".tci");
 
                 tja.Close();
             }
@@ -823,16 +829,33 @@ namespace KoiotoOTCConverter
             }
         }
 
-        private int? ScoreSubstring(string tjaLine, int i)
+        private int? IntSubstringNullable(string tjaLine, int i)
         {
-            // SCOREINIT: SCOREDIFF:用のInsSubstring
-            // 空白だった場合にnullを返す
+            // 空白だった場合にnullを返すIntSubstring
+            // スコアとかに使う
 
             tjaLine = tjaLine.Substring(i);
 
             if (tjaLine.Length != 0)
             {
                 return int.Parse(tjaLine);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private double? DoubleSubstringNullable(string tjaLine, int i)
+        {
+            // 空白だった場合にnullを返すDoubleSubstring
+            // BPMとかに使う
+
+            tjaLine = tjaLine.Substring(i);
+
+            if (tjaLine.Length != 0)
+            {
+                return double.Parse(tjaLine);
             }
             else
             {
@@ -851,6 +874,7 @@ namespace KoiotoOTCConverter
                 return str;
             }
         }
+
         private string[] NullStringToEmpty(string[] str)
         {
             if (str == null)
