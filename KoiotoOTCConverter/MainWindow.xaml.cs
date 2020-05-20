@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 
@@ -697,20 +698,16 @@ namespace KoiotoOTCConverter
 
                         if (tjaLine.Length == startStr.Length + 3)
                         {
-                            // #START P1, #START P2への対応
+                            // #START P1 への対応
                             string str = tjaLine.Substring(startStr.Length + 1);
 
-                            switch (str)
+                            if (Regex.IsMatch(str, "^P[0-9]*"))
                             {
-                                case "P1":
-                                    nowPlayside = 1;
-                                    break;
-                                case "P2":
-                                    nowPlayside = 2;
-                                    break;
-                                default:
-                                    nowPlayside = 0;
-                                    break;
+                                nowPlayside = int.Parse(str.Substring(1));
+                            }
+                            else
+                            {
+                                nowPlayside = 0;
                             }
                         }
                         else
@@ -1019,7 +1016,6 @@ namespace KoiotoOTCConverter
         string gogostartTcc = "#gogobegin";
         string measureTcc = "#tsign ";
 
-        // 独自命令文 #START P4 など複数プレイ譜面への対応（他のシミュレーターで再生したときにバグるかな？）
         // 生成されたファイルの編集しやすさを考えるとstringにはnullが入るより""入れたほうがいいのかもしれない（特にstring[]）
         // /が　＼/みたいな書き方で出力されてしまう（JSONではそれが正しいらしい）
         // ＼は＼＼と出力するのがOTCの規定らしい
