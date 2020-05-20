@@ -738,6 +738,16 @@ namespace KoiotoOTCConverter
                     tci.creator = creatorList.Distinct(StringComparer.InvariantCultureIgnoreCase).ToArray();
                 }
 
+                // stringのnullを空文字に置き換える
+                // 助長な書き方してる気がする、classをforeachで回せるかな？
+                tci.title = NullStringToEmpty(tci.title);
+                tci.subtitle = NullStringToEmpty(tci.subtitle);
+                tci.artist = NullStringToEmpty(tci.artist);
+                tci.creator = NullStringToEmpty(tci.creator);
+                tci.audio = NullStringToEmpty(tci.audio);
+                tci.background = NullStringToEmpty(tci.background);
+                tci.albumart = NullStringToEmpty(tci.albumart);
+
                 OTCWrite<OpenTaikoChartInfomation>(tci, Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath), ".tci");
 
                 tja.Close();
@@ -827,6 +837,29 @@ namespace KoiotoOTCConverter
             else
             {
                 return null;
+            }
+        }
+
+        private string NullStringToEmpty(string str)
+        {
+            if (str == null)
+            {
+                return str = "";
+            }
+            else
+            {
+                return str;
+            }
+        }
+        private string[] NullStringToEmpty(string[] str)
+        {
+            if (str == null)
+            {
+                return str = new string[]{ "" };
+            }
+            else
+            {
+                return str;
             }
         }
 
@@ -1016,7 +1049,6 @@ namespace KoiotoOTCConverter
         string gogostartTcc = "#gogobegin";
         string measureTcc = "#tsign ";
 
-        // 生成されたファイルの編集しやすさを考えるとstringにはnullが入るより""入れたほうがいいのかもしれない（特にstring[]）
         // /が　＼/みたいな書き方で出力されてしまう（JSONではそれが正しいらしい）
         // ＼は＼＼と出力するのがOTCの規定らしい
         // 出力ディレクトリを選べる機能

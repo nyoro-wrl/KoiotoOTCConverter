@@ -5,25 +5,32 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KoiotoOTCConverter"
         mc:Ignorable="d"
-        Title="設定" Height="219" Width="538.167" ResizeMode="CanMinimize" KeyDown="FormMain_KeyDown">
-    <Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
-        <CheckBox x:Name="CheckBoxOffset" Content="offsetの補正値：" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.3,0.433" Padding="4,2,0,2" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Unchecked="CheckBox_CheckChanged" Checked="CheckBox_CheckChanged"/>
+        Title="設定" Height="220" Width="540" ResizeMode="CanMinimize" KeyDown="FormMain_KeyDown" Margin="0">
+    <Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="10"/>
+        </Grid.RowDefinitions>
+        <CheckBox x:Name="CheckBoxOffset" Content="offsetの補正値：" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.3,0.433" Padding="4,2,0,2" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Unchecked="CheckBox_CheckChanged" Checked="CheckBox_CheckChanged" Height="20" Width="108"/>
         <TextBox x:Name="TextBoxOffset" HorizontalAlignment="Left" Height="20" Margin="123,10,0,0" VerticalAlignment="Top" Width="120" PreviewTextInput="TextBoxOffset_PreviewTextInput" PreviewMouseWheel="TextBoxOffset_PreviewMouseWheel" KeyDown="TextBox_KeyDown" LostFocus="TextBoxOffset_LostFocus" InputMethod.IsInputMethodEnabled="False" IsEnabled="False"/>
-        <TextBlock HorizontalAlignment="Left" Margin="10,30,0,0" VerticalAlignment="Top" Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Padding="7,5,5,5"><Run Text="プラス：譜面のタイミングが遅くなります"/><LineBreak/><Run Text="マイナス：譜面のタイミング"/><Run Text="が早くなります"/><LineBreak/><Run Text="※太鼓さん次郎2から変換する場合は"/><Run Text=" "/><Run Text="0.016"/><Run Text=" "/><Run Text="がオススメ"/></TextBlock>
-        <CheckBox x:Name="CheckBoxCreator" Content="creatorの格納：" HorizontalAlignment="Left" Margin="10,88,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.3,0.433" Padding="4,2,0,2" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Checked="CheckBox_CheckChanged" Unchecked="CheckBox_CheckChanged"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,30,0,0" VerticalAlignment="Top" Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Padding="7,5,5,5" Height="58" Width="273"><Run Text="プラス：譜面のタイミングが遅くなります"/><LineBreak/><Run Text="マイナス：譜面のタイミング"/><Run Text="が早くなります"/><LineBreak/><Run Text="※太鼓さん次郎2から変換する場合は"/><Run Text=" "/><Run Text="0.016"/><Run Text=" "/><Run Text="がオススメ"/></TextBlock>
+        <CheckBox x:Name="CheckBoxCreator" Content="creatorの格納：" HorizontalAlignment="Left" Margin="10,88,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.3,0.433" Padding="4,2,0,2" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Checked="CheckBox_CheckChanged" Unchecked="CheckBox_CheckChanged" Height="20" Width="103"/>
         <TextBox x:Name="TextBoxCreator" HorizontalAlignment="Left" Height="20" Margin="118,88,0,0" VerticalAlignment="Top" Width="120" KeyDown="TextBox_KeyDown" FontSize="14" IsEnabled="False"/>
-        <TextBlock HorizontalAlignment="Left" Margin="10,108,0,0" VerticalAlignment="Top" Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Padding="7,5,5,5" Text="現状1つしか格納できません。"/>
-        <GroupBox Header="backgroundの優先順位" HorizontalAlignment="Left" Height="46" Margin="288,10,0,0" VerticalAlignment="Top" Width="228" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}">
+        <TextBlock HorizontalAlignment="Left" Margin="10,108,0,0" VerticalAlignment="Top" Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Padding="7,5,5,5" Text="現状1つしか格納できません。" Height="26" Width="150"/>
+        <GroupBox Header="backgroundの優先順位" HorizontalAlignment="Left" Height="46" Margin="288,10,0,0" VerticalAlignment="Top" Width="226" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}">
             <StackPanel x:Name="BackgroundPanel" Margin="0" Orientation="Horizontal">
                 <RadioButton x:Name="RadioButtonBackground1" Content="Default" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="2,4,6,4" VerticalContentAlignment="Center" Checked="RadioButtonBackground_Checked"/>
                 <RadioButton x:Name="RadioButtonBackground2" Content="BGIMAGE" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="2,4,6,4" VerticalContentAlignment="Center" Checked="RadioButtonBackground_Checked"/>
                 <RadioButton x:Name="RadioButtonBackground3" Content="BGMOVIE" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="2,4,6,4" VerticalContentAlignment="Center" Checked="RadioButtonBackground_Checked"/>
             </StackPanel>
         </GroupBox>
-        <TextBlock x:Name="TextBlockBackgound" HorizontalAlignment="Left" Margin="288,56,0,0" VerticalAlignment="Top" Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Padding="7,5,5,5"><Run Text="後に定義された"/><Run Text="ものが"/><Run Text="優先されます"/><Run Text="。"/></TextBlock>
-
-        <Button x:Name="Reset" Content="既定値に戻す" HorizontalAlignment="Left" Margin="236,142,0,0" VerticalAlignment="Top" Width="88" Height="26" Click="Reset_Click"/>
-        <Button x:Name="Save" Content="保存" HorizontalAlignment="Left" Margin="332,142,0,0" VerticalAlignment="Top" Width="88" Height="26" Click="Save_Click"/>
-        <Button x:Name="Cancel" Content="キャンセル" HorizontalAlignment="Left" Margin="428,142,0,0" VerticalAlignment="Top" Width="88" Height="26" Click="Cancel_Click"/>
+        <TextBlock x:Name="TextBlockBackgound" HorizontalAlignment="Left" Margin="288,56,0,0" VerticalAlignment="Top" Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Padding="7,5,5,5" Height="26" Width="184"><Run Text="後に定義された"/><Run Text="ものが"/><Run Text="優先されます"/><Run Text="。"/></TextBlock>
+        <Button x:Name="Reset" Content="既定値に戻す" HorizontalAlignment="Left" VerticalAlignment="Top" Width="88" Height="26" Click="Reset_Click" Margin="234,145,0,0"/>
+        <Button x:Name="Save" Content="保存" HorizontalAlignment="Left" VerticalAlignment="Top" Width="88" Height="26" Click="Save_Click" Margin="330,145,0,0"/>
+        <Button x:Name="Cancel" Content="キャンセル" HorizontalAlignment="Left" VerticalAlignment="Top" Width="88" Height="26" Click="Cancel_Click" RenderTransformOrigin="0.534,0.846" Padding="1" Margin="426,145,0,0"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+        </Grid.ColumnDefinitions>
     </Grid>
 </Window>
