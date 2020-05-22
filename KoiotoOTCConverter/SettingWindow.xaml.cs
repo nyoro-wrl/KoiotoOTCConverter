@@ -48,6 +48,9 @@ namespace KoiotoOTCConverter
                 case bgMOVIE:
                     RadioButtonBackground3.IsChecked = true;
                     break;
+                case bgNone:
+                    RadioButtonBackground4.IsChecked = true;
+                    break;
                 default:
                     RadioButtonBackground1.IsChecked = true;
                     break;
@@ -69,6 +72,9 @@ namespace KoiotoOTCConverter
                     break;
                 case bgMOVIE:
                     setting.bgPriority = bgMOVIE;
+                    break;
+                case bgNone:
+                    setting.bgPriority = bgNone;
                     break;
                 default:
                     setting.bgPriority = bgDefault;
@@ -236,6 +242,9 @@ namespace KoiotoOTCConverter
                 case bgMOVIE:
                     str = "常にBGMOVIE:が優先されます。";
                     break;
+                case bgNone:
+                    str = "背景の定義が全て無視されます。";
+                    break;
             }
 
             TextBlockBackgound.Text = str;
@@ -266,7 +275,6 @@ namespace KoiotoOTCConverter
         public const string bgDefault = "Default";
         public const string bgIMAGE = "BGIMAGE";
         public const string bgMOVIE = "BGMOVIE";
-
-        // 設定ウィンドウが出る位置がめんどくさい
+        public const string bgNone = "None";
     }
 }

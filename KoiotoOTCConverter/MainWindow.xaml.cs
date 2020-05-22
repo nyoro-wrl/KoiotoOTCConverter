@@ -240,7 +240,9 @@ namespace KoiotoOTCConverter
                 int? nowDoubleplayScorediff = null;     // [DP時]現在のSCOREDIFF
                 int? nowDoubleplayScoreshinuchi = null; // [DP時]現在のSCORESHINUCHI
 
-                bool isMeasure = false;     // #START～#END内かどうか？
+                bool isMeasure = false;         // #START～#END内かどうか？
+                bool isMeasureExists = false;   //小節に音符（0含む）が存在するかどうか？
+
                 var attentionMsg = new List<string>() { };  // 警告メッセージのリスト
 
                 // 1行ずつ処理
@@ -429,7 +431,14 @@ namespace KoiotoOTCConverter
                             }
                             else
                             {
-                                tci.background = str;
+                                if (setting.bgPriority == SettingWindow.bgNone)
+                                {
+                                    attentionMsg.Add("変更：" + tjaLine + " は無視されます。");
+                                }
+                                else
+                                {
+                                    tci.background = str;
+                                }
                             }
                         }
                     }
@@ -455,7 +464,14 @@ namespace KoiotoOTCConverter
                             }
                             else
                             {
-                                tci.background = str;
+                                if (setting.bgPriority == SettingWindow.bgNone)
+                                {
+                                    attentionMsg.Add("変更：" + tjaLine + " は無視されます。");
+                                }
+                                else
+                                {
+                                    tci.background = str;
+                                }
                             }
                         }
                     }
@@ -680,10 +696,22 @@ namespace KoiotoOTCConverter
                             {
                                 // 小節の挿入
                                 string str = tjaLine.Replace(commaStr, "");
-                                measureLine.Add(str);
+
+                                if (str != "")
+                                {
+                                    measureLine.Add(str);
+                                    isMeasureExists = true;
+                                }
 
                                 if (comma >= 0)
                                 {
+                                    // 小節が,だけで終わる場合は最後に0を入れる
+                                    if (!isMeasureExists)
+                                    {
+                                        measureLine.Add("0");
+                                    }
+                                    isMeasureExists = false;
+
                                     // 小節区切り
                                     measures.Add(measureLine);
                                     measureLine = new List<string>() { };
@@ -1073,6 +1101,7 @@ namespace KoiotoOTCConverter
         string gogostartTcc = "#gogobegin";
         string measureTcc = "#tsign ";
 
+        // ,だけのところに0入れる
         // /が　＼/みたいな書き方で出力されてしまう（JSONではそれが正しいらしい）
         // ＼は＼＼と出力するのがOTCの規定らしい
         // 出力ディレクトリを選べる機能
