@@ -55,4 +55,4 @@ using System.Windows;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
 // 実際に表示されるバージョン
-[assembly: AssemblyInformationalVersion("1.3.1")]
+[assembly: AssemblyInformationalVersion("1.3.2")]

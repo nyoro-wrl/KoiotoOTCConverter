@@ -19,7 +19,7 @@ namespace KoiotoOTCConverter
     /// </summary>
     public partial class MainWindow : Window
     {
-        string otcVer = "Rev2"; // 対応しているOpenTaikoChartのバージョン
+        string otcVer = "Rev2.2"; // 対応しているOpenTaikoChartのバージョン
         string appDirectory = Path.GetDirectoryName(Path.GetFullPath(Environment.GetCommandLineArgs()[0])); // KoiotoOTCConverterが実行されているディレクトリ
         SettingWindow.Setting setting;  // 設定ファイルの値
 
@@ -65,7 +65,7 @@ namespace KoiotoOTCConverter
             // [ファイル]→開く
             // Windows API Code Pack使用
             var dialog = new CommonOpenFileDialog();
-            dialog.InitialDirectory = Path.GetDirectoryName(appDirectory);
+            dialog.InitialDirectory = InitialDirectoryDecision(appDirectory);
             dialog.Filters.Add(new CommonFileDialogFilter("tjaファイル", "*.tja"));
             dialog.Multiselect = true;
 
@@ -80,7 +80,7 @@ namespace KoiotoOTCConverter
             // [ファイル]→フォルダーを開く
             // Windows API Code Pack使用
             var dialog = new CommonOpenFileDialog();
-            dialog.InitialDirectory = Path.GetDirectoryName(appDirectory);
+            dialog.InitialDirectory = InitialDirectoryDecision(appDirectory);
             dialog.IsFolderPicker = true;
             dialog.Multiselect = true;
 
@@ -203,6 +203,7 @@ namespace KoiotoOTCConverter
 
             TextBoxMainWrite();
             TextBoxMainWrite("処理完了");
+            System.Media.SystemSounds.Asterisk.Play();
 
             TextBoxMain.ScrollToEnd();
         }
@@ -353,6 +354,8 @@ namespace KoiotoOTCConverter
                             case measureStr:
                             case scrollStr:
                             case delayStr:
+                            case barlineoffStr:
+                            case barlineonStr:
                                 break;
                             default:
                                 attentionMsg.Add("注意：[" + countLine + "行目] " + tjaLine + " はKoiotoでサポートされていません。");
@@ -705,7 +708,7 @@ namespace KoiotoOTCConverter
 
                                 if (comma >= 0)
                                 {
-                                    // 小節が,だけで終わる場合は最後に0を入れる
+                                    // 小節が,だけで終わる場合は最後に"0"を入れる
                                     if (!isMeasureExists)
                                     {
                                         measureLine.Add("0");
@@ -822,6 +825,8 @@ namespace KoiotoOTCConverter
             tjaLine = tjaLine.Replace(bpmchangeStr, bpmchangeTcc);
             tjaLine = tjaLine.Replace(gogostartStr, gogostartTcc);
             tjaLine = tjaLine.Replace(measureStr, measureTcc);
+            tjaLine = tjaLine.Replace(barlineoffStr, barlineoffTcc);
+            tjaLine = tjaLine.Replace(barlineonStr, barlineonTcc);
 
             tjaLine = tjaLine.ToLower();
 
@@ -895,7 +900,7 @@ namespace KoiotoOTCConverter
         {
             if (str == null)
             {
-                return str = "";
+                return "";
             }
             else
             {
@@ -907,7 +912,7 @@ namespace KoiotoOTCConverter
         {
             if (str == null)
             {
-                return str = new string[]{ "" };
+                return _ = new string[]{ "" };
             }
             else
             {
@@ -945,6 +950,18 @@ namespace KoiotoOTCConverter
             relativePath = relativePath.Replace("%25", "%");
 
             return relativePath;
+        }
+
+        private string InitialDirectoryDecision(string path)
+        {
+            if (Path.GetFileName(path).Contains("KoiotoOTCConverter"))
+            {
+                return Path.GetDirectoryName(path);
+            }
+            else
+            {
+                return Path.GetFullPath(path);
+            }
         }
 
         #region OpenTaikoChartClass
@@ -1076,12 +1093,14 @@ namespace KoiotoOTCConverter
         const string measureStr = "#MEASURE ";
         const string scrollStr = "#SCROLL ";
         const string delayStr = "#DELAY ";
+        const string barlineoffStr = "#BARLINEOFF";
+        const string barlineonStr = "#BARLINEON";
 
         // .tcc未対応
         int bmscroll, hbscroll;
         const string bmscrollStr = "#BMSCROLL";
         const string hbscrollStr = "#HBSCROLL";
-        //int section, branchstart, branchend, branchN, branchE, branchM, levelhold, barlineoff, barlineon, jposscroll, senotechange, nextsong, sudden;
+        //int section, branchstart, branchend, branchN, branchE, branchM, levelhold, jposscroll, senotechange, nextsong, sudden;
         //const string sectionStr = "#SECTION";
         //const string branchstartStr = "#BRANCHSTART ";
         //const string branchendStr = "#BRANCHEND";
@@ -1089,8 +1108,6 @@ namespace KoiotoOTCConverter
         //const string branchEStr = "#E";
         //const string branchMStr = "#M";
         //const string levelholdStr = "#LEVELHOLD";
-        //const string barlineoffStr = "#BARLINEOFF";
-        //const string barlineonStr = "#BARLINEON";
         //const string jposscrollStr = "#JPOSSCROLL ";
         //const string senotechangeStr = "#SENOTECHANGE";
         //const string nextsongStr = "#NEXTSONG ";
@@ -1100,6 +1117,8 @@ namespace KoiotoOTCConverter
         string bpmchangeTcc = "#bpm ";
         string gogostartTcc = "#gogobegin";
         string measureTcc = "#tsign ";
+        string barlineoffTcc = "#bar hide";
+        string barlineonTcc = "#bar show";
 
         // ,だけのところに0入れる
         // /が　＼/みたいな書き方で出力されてしまう（JSONではそれが正しいらしい）
