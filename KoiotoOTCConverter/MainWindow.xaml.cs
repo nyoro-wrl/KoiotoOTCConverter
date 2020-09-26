@@ -198,12 +198,12 @@ namespace KoiotoOTCConverter
                 {
                     // ファイルが読み込まれた場合
                     OTCConvert(files[fileIndex]);
+                    System.Media.SystemSounds.Asterisk.Play();
                 }
             }
 
             TextBoxMainWrite();
             TextBoxMainWrite("処理完了");
-            System.Media.SystemSounds.Asterisk.Play();
 
             TextBoxMain.ScrollToEnd();
         }
