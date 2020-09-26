@@ -54,6 +54,7 @@
 - 未対応の命令文でも.tccには記載されます
 - SUBTITLE:とSUBTITLE:++はそのままsubtitleに格納されますが、SUBTITLE:--だった場合はartistに格納されます
 - 設定はjsonファイルで保存されます
+- KoiotoOTCConverter.exe.configを削除しても一応動きます（保証はしません）
 - 以下の変数に重複がある場合は自動的に削除されます（大文字小文字は区別しない）
 	- artist
 	- creator
