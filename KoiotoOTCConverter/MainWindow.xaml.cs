@@ -231,6 +231,7 @@ namespace KoiotoOTCConverter
                 var multipleList = new List<string>() { };
 
                 var balloonList = new List<int>() { };
+                var scoreinitList = new List<int>() { };
                 var measures = new List<List<string>>() { };
                 var measureLine = new List<string>() { };
 
@@ -560,8 +561,25 @@ namespace KoiotoOTCConverter
 
                     if (scoreinit == 0)
                     {
-                        tcc.scoreinit = IntSubstringNullable(tjaLine, scoreinitStr.Length);
+                        string str = tjaLine.Substring(scoreinitStr.Length);
+
+                        str = str.Replace(" ", "");
+                        str = str.TrimEnd(',');
+
+                        // TODO
+                        if (str != "")
+                        {
+                            scoreinitList = str.Split(',').Select(a => int.Parse(a)).ToList();
+                        }
+
+                        tcc.scoreinit = scoreinitList[0];
                         nowDoubleplayScoreinit = tcc.scoreinit;
+
+                        if (scoreinitList.Count > 1)
+                        {
+                            tcc.scoreshinuchi = scoreinitList[1];
+                            nowDoubleplayScoreshinuchi = tcc.scoreshinuchi;
+                        }
                     }
 
                     if (scorediff == 0)
@@ -1012,9 +1030,9 @@ namespace KoiotoOTCConverter
         public class OpenTaikoChartCourse
         {
             [DataMember(Order = 1)]
-            public int? scoreinit { get; set; }  // ?を外してみる
+            public int? scoreinit { get; set; }
             [DataMember(Order = 2)]
-            public int? scorediff { get; set; }  // ?を外してみる
+            public int? scorediff { get; set; }
             [DataMember(Order = 3)]
             public int? scoreshinuchi { get; set; }
             [DataMember(Order = 4)]
